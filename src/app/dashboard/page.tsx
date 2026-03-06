@@ -3,6 +3,7 @@
 import { useStudentSearch } from '@/hooks/useStudentSearch';
 import SearchBar from '@/components/search/SearchBar';
 import ProfileHeader from '@/components/student/ProfileHeader';
+import ProfileQuickEdit from '@/components/student/ProfileQuickEdit';
 import StudentTabs from '@/components/student/StudentTabs';
 import ProfileSkeleton from '@/components/student/ProfileSkeleton';
 import RightPanel from '@/components/layout/RightPanel';
@@ -53,6 +54,10 @@ export default function DashboardPage() {
           {!isLoading && profile && !error && (
             <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <ProfileHeader profile={profile} />
+              <ProfileQuickEdit
+                student={profile.student}
+                payId={profile.student.payId}
+              />
               <StudentTabs profile={profile} />
             </div>
           )}

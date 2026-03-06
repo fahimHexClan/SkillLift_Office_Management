@@ -52,3 +52,52 @@ export interface StudentProfile {
 }
 
 export type SearchType = 'SR Number' | 'Pay ID';
+
+export type UserRole = 'Admin' | 'Teacher' | 'Staff';
+
+export interface ZoomClass {
+  id: number;
+  className: string;
+  zoomId: string;
+  zoomLink: string;
+  teacherName: string;
+  startTime: string;
+  date: string;
+  isActive: boolean;
+}
+
+export interface AdminStudent {
+  id: number;
+  name: string;
+  email: string;
+  srNumber: string;
+  nic: string;
+  contact: string;
+  course: string;
+  batch: string;
+  hasRegistrationIssue: boolean;
+  issueType?: 'DUPLICATE_EMAIL' | 'DUPLICATE_NIC' | 'DUPLICATE_SR';
+  duplicates?: AdminStudent[];
+}
+
+export interface TransferRecord {
+  id: number;
+  studentName: string;
+  srNumber: string;
+  fromCourse: string;
+  fromBatch: string;
+  toCourse: string;
+  toBatch: string;
+  transferredAt: string;
+  transferredBy: string;
+}
+
+export interface ZoomClassForm {
+  className: string;
+  zoomId: string;
+  zoomLink: string;
+  teacherName: string;
+  startTime: string;
+  date: string;
+  isActive: boolean;
+}
