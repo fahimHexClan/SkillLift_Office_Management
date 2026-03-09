@@ -1,84 +1,138 @@
+'use client';
+
+import { Copy, CheckCircle2, Check } from 'lucide-react';
+import { useState } from 'react';
 import { StudentProfile } from '@/types';
-import { Copy, CheckCircle2 } from 'lucide-react';
+import { T } from '@/lib/theme';
+import { getInitials } from '@/lib/utils';
 
 interface Props { profile: StudentProfile; }
 
-function Avatar({ name, color }: { name: string; color: string }) {
-  const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+function Avatar({ name, gradient }: { name: string; gradient: string }) {
+  const initials = getInitials(name);
   return (
     <div style={{
-      width: '44px', height: '44px', borderRadius: '12px',
-      background: color, display: 'flex', alignItems: 'center',
-      justifyContent: 'center', color: 'white', fontWeight: 700,
-      fontSize: '15px', flexShrink: 0,
+      width: '52px', height: '52px', borderRadius: '14px', flexShrink: 0,
+      background: gradient,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: 'white', fontWeight: 800, fontSize: '16px',
+      boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+      letterSpacing: '0.02em',
     }}>{initials}</div>
   );
 }
 
+const PAYMENT_STYLES: Record<string, { color: string; bg: string; border: string; label: string }> = {
+  half:    { color: 'var(--accent-orange)', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.25)',  label: 'Half Payment' },
+  full:    { color: 'var(--accent-green)',  bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.25)', label: 'Full Payment' },
+  pending: { color: 'var(--accent-red)',    bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.25)',   label: 'Pending' },
+};
+
 export default function ProfileHeader({ profile }: Props) {
   const { student, counselor } = profile;
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(student.srNumber);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const ps = PAYMENT_STYLES[student.paymentStatus] ?? PAYMENT_STYLES.pending;
 
   return (
     <div style={{
-      background: 'white', borderRadius: '14px',
-      border: '1px solid #e2e8f0',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-      padding: '16px 20px',
-      display: 'grid', gridTemplateColumns: '1fr 1px 1fr', gap: '0',
+      background: T.card,
+      border: `1px solid ${T.border}`,
+      borderRadius: '16px',
+      boxShadow: T.shadowCard,
+      padding: '20px 24px',
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '0',
     }}>
 
-      {/* Student */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingRight: '20px' }}>
-        <Avatar name={student.name} color="linear-gradient(135deg, #475569, #1e293b)" />
-        <div style={{ minWidth: 0 }}>
-          <p style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a', marginBottom: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+      {/* ── Student side ── */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', paddingRight: '24px' }}>
+        <Avatar name={student.name} gradient="linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)" />
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Name */}
+          <p style={{ fontWeight: 700, fontSize: '15px', color: T.text, marginBottom: '5px', lineHeight: 1.2 }}>
             {student.name}
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '12px', color: '#64748b', fontFamily: 'monospace' }}>{student.srNumber}</span>
-            <span style={{
-              padding: '1px 7px', borderRadius: '5px', fontSize: '10px', fontWeight: 700,
-              background: student.paymentStatus === 'half' ? '#fff7ed' : '#f0fdf4',
-              color: student.paymentStatus === 'half' ? '#c2410c' : '#15803d',
-              border: `1px solid ${student.paymentStatus === 'half' ? '#fed7aa' : '#bbf7d0'}`,
-              textTransform: 'uppercase' as const,
-            }}>{student.paymentStatus}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '4px' }}>
-            <span style={{ fontSize: '11px', color: '#94a3b8' }}>{student.marketplace}</span>
+
+          {/* SR Number + copy */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '7px' }}>
+            <span style={{ fontSize: '12px', color: T.textMuted, fontFamily: 'monospace', fontWeight: 600 }}>
+              {student.srNumber}
+            </span>
             <button
-              onClick={() => navigator.clipboard.writeText(student.srNumber)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0', color: '#94a3b8', display: 'flex' }}
+              onClick={handleCopy}
               title="Copy SR Number"
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: copied ? 'var(--accent-green)' : T.textMuted,
+                display: 'flex', alignItems: 'center',
+                padding: '2px', borderRadius: '4px',
+                transition: 'color 0.15s',
+              }}
             >
-              <Copy size={11} />
+              {copied ? <Check size={12} /> : <Copy size={12} />}
             </button>
+          </div>
+
+          {/* Payment badge + course */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+            <span style={{
+              fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '6px',
+              color: ps.color, background: ps.bg, border: `1px solid ${ps.border}`,
+              textTransform: 'uppercase', letterSpacing: '0.05em',
+            }}>{ps.label}</span>
+
+            <span style={{
+              fontSize: '11px', fontWeight: 500, padding: '3px 9px', borderRadius: '6px',
+              color: T.textSec, background: T.input, border: `1px solid ${T.border}`,
+              maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>{student.marketplace}</span>
           </div>
         </div>
       </div>
 
-      {/* Divider */}
-      <div style={{ background: '#f1f5f9', margin: '0 0' }} />
+      {/* ── Counselor side ── */}
+      <div style={{
+        display: 'flex', alignItems: 'flex-start', gap: '14px',
+        paddingLeft: '24px',
+        borderLeft: `1px solid ${T.border}`,
+      }}>
+        <Avatar name={counselor.name} gradient="linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)" />
 
-      {/* Counselor */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingLeft: '20px' }}>
-        <Avatar name={counselor.name} color="linear-gradient(135deg, #1d4ed8, #3b82f6)" />
-        <div style={{ minWidth: 0 }}>
-          <p style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a', marginBottom: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Name */}
+          <p style={{ fontWeight: 700, fontSize: '15px', color: T.text, marginBottom: '5px', lineHeight: 1.2 }}>
             {counselor.name}
           </p>
-          <p style={{ fontSize: '12px', color: '#64748b', fontFamily: 'monospace' }}>{counselor.ccId}</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+
+          {/* CC Number */}
+          <p style={{ fontSize: '12px', color: T.textMuted, fontFamily: 'monospace', fontWeight: 600, marginBottom: '7px' }}>
+            {counselor.ccId}
+          </p>
+
+          {/* Active badge + agent number */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             {counselor.isActive && (
               <span style={{
-                display: 'flex', alignItems: 'center', gap: '3px',
-                padding: '1px 7px', borderRadius: '5px', fontSize: '10px', fontWeight: 700,
-                background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0',
+                display: 'inline-flex', alignItems: 'center', gap: '4px',
+                fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '6px',
+                color: 'var(--accent-green)', background: 'rgba(16,185,129,0.12)',
+                border: '1px solid rgba(16,185,129,0.25)', textTransform: 'uppercase', letterSpacing: '0.05em',
               }}>
-                <CheckCircle2 size={9} /> Active
+                <CheckCircle2 size={10} /> Active
               </span>
             )}
-            <span style={{ fontSize: '11px', color: '#94a3b8' }}>{counselor.agentNumber}</span>
+            <span style={{ fontSize: '12px', color: T.textMuted, fontFamily: 'monospace' }}>
+              {counselor.agentNumber}
+            </span>
           </div>
         </div>
       </div>

@@ -1,151 +1,319 @@
 'use client';
 
-import { LayoutDashboard, CalendarDays, LogOut, Zap, Video, Users, Shield } from 'lucide-react';
+import {
+  LayoutDashboard, Video, Users, UserCheck,
+  BarChart2, Settings, LogOut, ChevronRight,
+  CalendarDays, Shield, UserSearch, UserCog,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { UserRole } from '@/types';
+import { getInitials } from '@/lib/utils';
 
-const roleMeta: Record<UserRole, { color: string; bg: string; border: string }> = {
-  Admin:   { color: '#b45309', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.2)' },
-  Teacher: { color: '#60a5fa', bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.2)' },
-  Staff:   { color: 'rgba(255,255,255,0.45)', bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.1)' },
+// ─── Sidebar tokens — all values come from CSS variables (theme-aware) ────────
+const S = {
+  bg:            'var(--sidebar-bg)',
+  border:        'var(--sidebar-border-c)',
+  text:          'var(--sidebar-text)',
+  textMuted:     'var(--sidebar-text-inactive)',
+  textInactive:  'var(--sidebar-text-inactive)',
+  hover:         'var(--sidebar-hover-bg)',
+  hoverText:     'var(--sidebar-hover-text)',
+  activeGrad:    'var(--sidebar-active-bg)',
+  activeText:    'var(--sidebar-active-text)',
+  activeGlow:    'var(--sidebar-active-glow)',
+  sectionLabel:  'var(--sidebar-section-label)',
+  gradient:      'var(--gradient-main)',
+  logoBg:        'var(--sidebar-logo-bg)',
+  logoBorder:    'var(--sidebar-logo-border)',
+  profileBg:     'var(--sidebar-profile-bg)',
+  profileBorder: 'var(--sidebar-profile-border)',
+  avatarInner:   'var(--sidebar-avatar-inner)',
+  avatarText:    'var(--sidebar-avatar-text)',
+  shadow:        'var(--sidebar-shadow)',
 };
 
+// ─── Nav structure ────────────────────────────────────────────────────────────
+interface NavItem {
+  label: string;
+  href:  string;
+  icon:  React.ElementType;
+  roles: UserRole[];
+}
+
+const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
+  {
+    label: 'MAIN',
+    items: [
+      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['Admin','Teacher','Staff'] },
+    ],
+  },
+  {
+    label: 'MANAGEMENT',
+    items: [
+      { label: 'Student Search',     href: '/dashboard/student-search',     icon: UserSearch,  roles: ['Admin','Teacher','Staff'] },
+      { label: 'Zoom Classes',       href: '/dashboard/zoom-classes',       icon: Video,       roles: ['Admin','Teacher','Staff'] },
+      { label: 'Student Management', href: '/dashboard/admin/students',     icon: Users,       roles: ['Admin'] },
+      { label: 'Coordinator Mgmt',   href: '/dashboard/admin/coordinators', icon: UserCheck,   roles: ['Admin'] },
+      { label: 'User Management',    href: '/dashboard/admin/users',        icon: UserCog,     roles: ['Admin'] },
+      { label: 'Hall Bookings',      href: '/dashboard/hall-bookings',      icon: CalendarDays,roles: ['Admin','Teacher','Staff'] },
+    ],
+  },
+  {
+    label: 'SYSTEM',
+    items: [
+      { label: 'Reports',  href: '/dashboard/reports',  icon: BarChart2, roles: ['Admin','Teacher','Staff'] },
+      { label: 'Settings', href: '/dashboard/settings', icon: Settings,  roles: ['Admin','Teacher','Staff'] },
+    ],
+  },
+];
+
+const ROLE_META: Record<UserRole, { color: string; bg: string; border: string }> = {
+  Admin:   { color: 'var(--role-admin-color)',   bg: 'var(--role-admin-bg)',   border: 'var(--role-admin-border)'   },
+  Teacher: { color: 'var(--role-teacher-color)', bg: 'var(--role-teacher-bg)', border: 'var(--role-teacher-border)' },
+  Staff:   { color: 'var(--role-staff-color)',   bg: 'var(--role-staff-bg)',   border: 'var(--role-staff-border)'   },
+};
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
 export default function Sidebar() {
   const pathname = usePathname();
-  const { role, setRole, isAdmin } = useUserRole();
-  const rm = roleMeta[role];
+  const { role, setRole } = useUserRole();
 
-  const navItems = [
-    { label: 'Dashboard',          href: '/dashboard',               icon: LayoutDashboard, visible: true },
-    { label: 'Zoom Classes',        href: '/dashboard/zoom-classes',  icon: Video,           visible: true },
-    { label: 'Student Management',  href: '/dashboard/admin/students', icon: Users,           visible: isAdmin },
-    { label: 'Hall Bookings',       href: '/dashboard/hall-bookings', icon: CalendarDays,    visible: true },
-  ];
+  const isActive = (href: string) =>
+    href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href);
+
+  const rm = ROLE_META[role];
 
   return (
     <aside style={{
-      width: '208px',
+      width: '240px',
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #0f1729 0%, #162035 100%)',
+      background: S.bg,
       display: 'flex',
       flexDirection: 'column',
-      borderRight: '1px solid rgba(255,255,255,0.06)',
+      borderRight: `1px solid ${S.border}`,
+      boxShadow: S.shadow,
       flexShrink: 0,
+      position: 'relative',
+      zIndex: 10,
     }}>
 
-      {/* Logo */}
+      {/* ── Logo ── */}
       <div style={{
         padding: '20px 16px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: `1px solid ${S.border}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{
-            width: '30px', height: '30px',
-            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-            borderRadius: '8px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(59,130,246,0.4)',
-          }}>
-            <Zap size={16} color="white" fill="white" />
-          </div>
-          <div>
-            <p style={{ color: 'white', fontWeight: 700, fontSize: '13px', letterSpacing: '0.02em' }}>SKILIFT</p>
-            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '10px', letterSpacing: '0.08em' }}>SUPPORT</p>
+        <div style={{
+          padding: '10px 18px',
+          background: S.logoBg,
+          border: `1px solid ${S.logoBorder}`,
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <img
+            src="/skilllift-logo0.png"
+            alt="SkillLift"
+            style={{ height: '30px', width: 'auto', objectFit: 'contain' }}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.display = 'none';
+              const fb = e.currentTarget.nextElementSibling as HTMLElement;
+              if (fb) fb.style.display = 'flex';
+            }}
+          />
+          {/* Fallback */}
+          <div style={{ display: 'none', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '28px', height: '28px', borderRadius: '8px',
+              background: S.gradient,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(59,130,246,0.4)',
+              fontSize: '13px', fontWeight: 800, color: 'white',
+            }}>S</div>
+            <div>
+              <p style={{ color: S.text, fontWeight: 800, fontSize: '12px', letterSpacing: '0.08em' }}>SKILIFT</p>
+              <p style={{ color: S.sectionLabel, fontSize: '9px', letterSpacing: '0.14em' }}>OFFICE MGMT</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Agent + Role */}
-      <div style={{
-        padding: '14px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-          <div style={{
-            width: '36px', height: '36px', borderRadius: '10px',
-            background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', fontWeight: 700, fontSize: '13px',
-            flexShrink: 0, boxShadow: '0 4px 10px rgba(99,102,241,0.3)',
-          }}>SA</div>
-          <div style={{ minWidth: 0 }}>
-            <p style={{ color: 'white', fontWeight: 600, fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Support Agent</p>
-            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '10px', fontFamily: 'monospace' }}>OS011</p>
-          </div>
-        </div>
-
-        {/* Role switcher */}
+      {/* ── Role switcher ── */}
+      <div style={{ padding: '12px 14px', borderBottom: `1px solid ${S.border}` }}>
         <div style={{
-          display: 'flex', alignItems: 'center', gap: '6px',
-          padding: '5px 10px', borderRadius: '8px',
+          display: 'flex', alignItems: 'center', gap: '8px',
+          padding: '8px 11px', borderRadius: '9px',
           background: rm.bg, border: `1px solid ${rm.border}`,
         }}>
-          <Shield size={11} color={rm.color} />
+          <Shield size={12} color={rm.color} />
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as UserRole)}
             style={{
               background: 'none', border: 'none', outline: 'none', flex: 1,
-              fontSize: '11px', fontWeight: 700, color: rm.color,
-              cursor: 'pointer', fontFamily: "'DM Sans', sans-serif",
+              fontSize: '12px', fontWeight: 700, color: rm.color,
+              cursor: 'pointer', fontFamily: "'Inter', sans-serif",
             }}
           >
-            <option value="Admin" style={{ background: '#1e293b', color: 'white' }}>Admin</option>
-            <option value="Teacher" style={{ background: '#1e293b', color: 'white' }}>Teacher</option>
-            <option value="Staff" style={{ background: '#1e293b', color: 'white' }}>Staff</option>
+            <option value="Admin">Admin</option>
+            <option value="Teacher">Teacher</option>
+            <option value="Staff">Staff</option>
           </select>
         </div>
       </div>
 
-      {/* Nav */}
-      <nav style={{ flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-        <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', padding: '4px 8px 8px', textTransform: 'uppercase' }}>Menu</p>
-        {navItems.filter((item) => item.visible).map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+      {/* ── Navigation ── */}
+      <nav style={{ flex: 1, padding: '14px 10px', overflowY: 'auto' }}>
+        {NAV_SECTIONS.map((section, si) => {
+          const visibleItems = section.items.filter((item) => item.roles.includes(role));
+          if (!visibleItems.length) return null;
           return (
-            <Link key={item.href} href={item.href} style={{
-              display: 'flex', alignItems: 'center', gap: '10px',
-              padding: '9px 12px', borderRadius: '10px',
-              fontSize: '13px', fontWeight: isActive ? 600 : 400,
-              color: isActive ? 'white' : 'rgba(255,255,255,0.45)',
-              background: isActive ? 'linear-gradient(135deg, rgba(59,130,246,0.25), rgba(59,130,246,0.1))' : 'transparent',
-              border: isActive ? '1px solid rgba(59,130,246,0.3)' : '1px solid transparent',
-              textDecoration: 'none',
-              transition: 'all 0.2s',
-            }}>
-              <Icon size={15} />
-              {item.label}
-            </Link>
+            <div key={section.label} style={{ marginBottom: '6px' }}>
+              {/* Section label */}
+              <p style={{
+                fontSize: '10px', fontWeight: 700, color: S.sectionLabel,
+                letterSpacing: '0.1em', textTransform: 'uppercase',
+                padding: '0 10px 6px',
+                marginTop: si > 0 ? '14px' : '0',
+              }}>{section.label}</p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                {visibleItems.map((item) => {
+                  const Icon   = item.icon;
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '10px',
+                        padding: '9px 12px', borderRadius: '9px',
+                        fontSize: '13px', fontWeight: active ? 600 : 400,
+                        color: active ? S.activeText : S.textInactive,
+                        background: active ? S.activeGrad : 'transparent',
+                        border: '1px solid transparent',
+                        textDecoration: 'none',
+                        boxShadow: active ? S.activeGlow : 'none',
+                        position: 'relative',
+                        transition: 'all 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!active) {
+                          const el = e.currentTarget as HTMLElement;
+                          el.style.background = S.hover;
+                          el.style.color = S.hoverText;
+                          el.style.borderColor = 'rgba(59,130,246,0.15)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!active) {
+                          const el = e.currentTarget as HTMLElement;
+                          el.style.background = 'transparent';
+                          el.style.color = S.textInactive;
+                          el.style.borderColor = 'transparent';
+                        }
+                      }}
+                    >
+                      <Icon size={15} style={{ flexShrink: 0, opacity: active ? 1 : 0.7 }} />
+                      <span style={{ flex: 1, lineHeight: 1 }}>{item.label}</span>
+                      {active && (
+                        <ChevronRight size={12} style={{ opacity: 0.6, flexShrink: 0 }} />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Separator after section (except last) */}
+              {si < NAV_SECTIONS.length - 1 && (
+                <div style={{
+                  height: '1px',
+                  background: S.border,
+                  margin: '14px 10px 0',
+                }} />
+              )}
+            </div>
           );
         })}
       </nav>
 
-      {/* Logout */}
-      <div style={{ padding: '12px 10px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <button onClick={() => signOut({ callbackUrl: '/login' })} style={{
+      {/* ── Bottom: Profile + Logout ── */}
+      <div style={{ padding: '10px 10px 14px', borderTop: `1px solid ${S.border}` }}>
+
+        {/* Profile card */}
+        <div style={{
           display: 'flex', alignItems: 'center', gap: '10px',
-          padding: '9px 12px', borderRadius: '10px', width: '100%',
-          fontSize: '13px', fontWeight: 500,
-          color: 'rgba(239,68,68,0.7)',
-          background: 'transparent', border: '1px solid transparent',
-          cursor: 'pointer', transition: 'all 0.2s',
-          fontFamily: "'DM Sans', sans-serif",
-        }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.1)';
-            (e.currentTarget as HTMLElement).style.color = '#ef4444';
+          padding: '10px 11px', borderRadius: '10px',
+          background: S.profileBg,
+          border: `1px solid ${S.profileBorder}`,
+          marginBottom: '8px',
+        }}>
+          {/* Avatar with gradient border */}
+          <div style={{
+            padding: '2px',
+            borderRadius: '10px',
+            background: S.gradient,
+            flexShrink: 0,
+            boxShadow: '0 2px 10px rgba(59,130,246,0.3)',
+          }}>
+            <div style={{
+              width: '28px', height: '28px', borderRadius: '8px',
+              background: S.avatarInner,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: S.avatarText, fontWeight: 800, fontSize: '11px',
+            }}>SA</div>
+          </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p style={{ color: S.text, fontWeight: 600, fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Support Agent
+            </p>
+            <span style={{
+              fontSize: '10px', fontWeight: 700, color: rm.color,
+              background: rm.bg, padding: '1px 6px', borderRadius: '4px',
+            }}>{role}</span>
+          </div>
+        </div>
+
+        {/* Logout */}
+        <button
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            padding: '9px 12px', borderRadius: '9px', width: '100%',
+            fontSize: '13px', fontWeight: 500,
+            color: 'var(--accent-red)',
+            background: 'rgba(220,38,38,0.07)',
+            border: '1px solid rgba(220,38,38,0.15)',
+            cursor: 'pointer', transition: 'all 0.2s',
+            fontFamily: "'Inter', sans-serif",
           }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.background = 'transparent';
-            (e.currentTarget as HTMLElement).style.color = 'rgba(239,68,68,0.7)';
+          onMouseEnter={(e) => {
+            const el = e.currentTarget as HTMLElement;
+            el.style.background = 'rgba(220,38,38,0.14)';
+            el.style.borderColor = 'rgba(220,38,38,0.3)';
+            el.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget as HTMLElement;
+            el.style.background = 'rgba(220,38,38,0.07)';
+            el.style.borderColor = 'rgba(220,38,38,0.15)';
+            el.style.transform = 'translateY(0)';
           }}
         >
-          <LogOut size={15} />
-          Logout
+          <div style={{
+            width: '24px', height: '24px', borderRadius: '7px', flexShrink: 0,
+            background: 'rgba(239,68,68,0.12)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <LogOut size={12} color="var(--accent-red)" />
+          </div>
+          <span style={{ flex: 1, textAlign: 'left' }}>Sign Out</span>
         </button>
       </div>
     </aside>

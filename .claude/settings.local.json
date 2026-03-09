@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"C:/Users/fahim/Documents/Skill Lift/SkillLiftOfficeManagement/skilift-support\" && npx tsc --noEmit 2>&1 | head -40)",
+      "Bash(cd \"C:/Users/fahim/Documents/Skill Lift/SkillLiftOfficeManagement/skilift-support\" && npx tsc --noEmit 2>&1)",
+      "Bash(cd \"C:\\\\Users\\\\fahim\\\\Documents\\\\Skill Lift\\\\SkillLiftOfficeManagement\\\\skilift-support\" && npx tsc --noEmit 2>&1)",
+      "Bash(cd \"C:\\\\Users\\\\fahim\\\\Documents\\\\Skill Lift\\\\SkillLiftOfficeManagement\\\\skilift-support\" && curl -s -X POST http://localhost:3000/api/proxy/student-search -H \"Content-Type: application/json\" -d \"{\\\\\"type\\\\\":\\\\\"SR Number\\\\\",\\\\\"value\\\\\":\\\\\"SR526701\\\\\"}\" 2>&1 | head -c 1000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X POST \"https://www.skilllift.lk/api/accounts/\" -H \"access_token: $2y$10\\\\$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS\" -F \"pay_id=SR526701\" 2>&1)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X POST \"https://www.skilllift.lk/api/account/\" -H \"access_token: $2y$10\\\\$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS\" -F \"pay_id=SR526701\" 2>&1)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X POST \"https://www.skilllift.lk/api/student/search\" -H \"access_token: $2y$10\\\\$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS\" -F \"pay_id=SR526701\" 2>&1)",
+      "Bash(curl -s -L -X POST \"https://www.skilllift.lk/api/accounts/\" -H \"access_token: $2y$10\\\\$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS\" -F \"pay_id=SR526701\" 2>&1 | head -c 1000)",
+      "Bash(curl -s -v -X POST \"https://www.skilllift.lk/api/accounts/\" -H \"access_token: $2y$10\\\\$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS\" -F \"pay_id=SR526701\" 2>&1 | grep -E \"Location:|HTTP/\")",
+      "Bash(curl -s -X POST \"https://www.skilllift.lk/api/accounts\" -H \"access_token: $2y$10\\\\$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS\" -F \"pay_id=SR526701\" 2>&1 | head -c 800)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X POST \"https://api.skilllift.lk/api/accounts\" -H \"access_token: $2y$10\\\\$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS\" -F \"pay_id=SR526701\" 2>&1)",
+      "Bash(curl -s -X POST \"https://www.skilllift.lk/api/accounts\" -H \"Authorization: Bearer $2y$10\\\\$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS\" -F \"pay_id=SR526701\" 2>&1 | head -c 400)",
+      "Bash(curl -s -X POST \"https://www.skilllift.lk/api/accounts\" -F \"pay_id=SR526701\" -F \"access_token=$2y$10\\\\$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS\" 2>&1 | head -c 400)",
+      "Bash(TOKEN='$2y$10$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS'\ncurl -s -o /dev/null -w \"status:%{http_code}\" -X POST \"https://www.skilllift.lk/api/search\" -H \"access_token: $TOKEN\" -F \"pay_id=SR526701\" 2>&1\necho \"\"\ncurl -s -o /dev/null -w \"status:%{http_code}\" -X POST \"https://www.skilllift.lk/api/user/accounts\" -H \"access_token: $TOKEN\" -F \"pay_id=SR526701\" 2>&1\necho \"\"\ncurl -s -o /dev/null -w \"status:%{http_code}\" -X POST \"https://www.skilllift.lk/account\" -H \"access_token: $TOKEN\" -F \"pay_id=SR526701\" 2>&1)",
+      "Bash(TOKEN='$2y$10$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS'\ncurl -s -X POST \"https://admin.skilllift.lk/api/accounts/\" -H \"access_token: $TOKEN\" -F \"pay_id=SR526701\" 2>&1 | head -c 1000)",
+      "Bash(curl -s -X POST \"https://admin.skilllift.lk/api/accounts/\" \\\\\n  -H 'access_token: $2y$10$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS' \\\\\n  -F \"pay_id=SR526701\" 2>&1 | head -c 1000)",
+      "Bash(curl -s -o /dev/null -w \"status:%{http_code}\" \"https://admin.skilllift.lk/api/courses_list\" -H 'access_token: $2y$10$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS' 2>&1\necho \"\"\ncurl -s -o /dev/null -w \"status:%{http_code}\" \"https://www.skilllift.lk/api/courses_list\" -H 'access_token: $2y$10$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS' 2>&1)",
+      "Bash(curl -s -o /dev/null -w \"transfer status:%{http_code}\" -X POST \"https://admin.skilllift.lk/api/user/titan_cco_transfer\" -H 'access_token: $2y$10$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS' -F \"studentId=SR526701\" -F \"sponsorId=x\" -F \"placementId=x\" -F \"node=L\" 2>&1)",
+      "Bash(curl -s -o /dev/null -w \"www transfer:%{http_code}\" -X POST \"https://www.skilllift.lk/api/user/titan_cco_transfer\" -H 'access_token: $2y$10$S3W2WSR9sk5cf0yEqR1Rf.oZGkvhUu46idzux2QLMTTzt3m2IHIWS' -F \"studentId=SR526701\" -F \"sponsorId=x\" -F \"placementId=x\" -F \"node=L\" 2>&1)",
+      "Bash(curl -s -X POST http://localhost:3000/api/proxy/student-search \\\\\n  -H \"Content-Type: application/json\" \\\\\n  -d '{\"type\":\"SR Number\",\"value\":\"SR526701\"}' 2>&1 | head -c 400)",
+      "Bash(cd \"C:/Users/fahim/Documents/Skill Lift/SkillLiftOfficeManagement/skilift-support\" && npx tsc --noEmit 2>&1; echo \"EXIT:$?\")",
+      "Bash(npm run:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}

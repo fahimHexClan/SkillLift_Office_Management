@@ -1,13 +1,22 @@
 import { CalendarDays } from 'lucide-react';
+import { T } from '@/lib/theme';
 
 export default function HallBookingsPage() {
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-4">
-      <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center">
-        <CalendarDays size={36} className="text-blue-400" />
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      justifyContent: 'center', height: '100%', gap: '16px',
+      background: T.bg,
+    }}>
+      <div style={{
+        width: '72px', height: '72px', borderRadius: '20px',
+        background: 'rgba(59,130,246,0.1)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <CalendarDays size={32} color="var(--accent-primary)" />
       </div>
-      <h2 className="text-xl font-bold text-gray-700">Hall Bookings</h2>
-      <p className="text-gray-400 text-sm">Coming soon...</p>
+      <h2 style={{ fontSize: '18px', fontWeight: 700, color: T.text }}>Hall Bookings</h2>
+      <p style={{ fontSize: '13px', color: T.textMuted }}>Coming soon — room scheduling and booking management</p>
     </div>
   );
 }

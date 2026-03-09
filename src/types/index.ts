@@ -5,14 +5,17 @@ export interface Student {
   name: string;
   marketplace: string;
   medium: string;
+  classFormat: string;
+  classType: string;
   contact: string;
   nic: string;
   email: string;
   group: string;
   dob: string;
   gender: string;
+  createdAt: string;
   photo?: string;
-  paymentStatus: 'half' | 'full';
+  paymentStatus: 'half' | 'full' | 'pending';
 }
 
 export interface Counselor {
@@ -34,6 +37,9 @@ export interface Order {
   id: number;
   description: string;
   paidAt: string;
+  amount: string;
+  paymentMode: string;
+  subscription: string;
 }
 
 export interface ActivationDetails {
@@ -51,7 +57,7 @@ export interface StudentProfile {
   activation: ActivationDetails;
 }
 
-export type SearchType = 'SR Number' | 'Pay ID';
+export type SearchType = 'SR Number' | 'Pay ID' | 'Mobile Number' | 'Email' | 'NIC';
 
 export type UserRole = 'Admin' | 'Teacher' | 'Staff';
 

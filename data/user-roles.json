@@ -1,0 +1,14 @@
+[
+  {
+    "email": "fahimhex10@gmail.com",
+    "role": "admin",
+    "assignedAt": "2026-01-01T00:00:00.000Z",
+    "assignedBy": "system"
+  },
+  {
+    "email": "fsudeshini1999@gmail.com",
+    "role": "staff",
+    "assignedAt": "2026-03-09T07:57:34.820Z",
+    "assignedBy": "fahimhex10@gmail.com"
+  }
+]

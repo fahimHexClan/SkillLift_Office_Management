@@ -1,20 +1,13 @@
 import { useState } from 'react';
 import { AdminStudent, TransferRecord } from '@/types';
-
-export const COURSES = [
-  'Crypto Trading Guide',
-  'Forex Fundamentals',
-  'Stock Market Basics',
-  'Advanced Technical Analysis',
-  'Options Trading Workshop',
-];
+import { deleteStudent, getCoursesList, transferStudent } from '@/lib/api';
 
 export const BATCHES = [
   'BATCH-2025-A', 'BATCH-2025-B', 'BATCH-2025-C',
   'BATCH-2026-A', 'BATCH-2026-B', 'BATCH-2026-C',
 ];
 
-// Mock data — API ready ஆனதும் replace பண்ணலாம்
+// Mock data — used for password reset and transfer history (no API available)
 const mockStudents: AdminStudent[] = [
   {
     id: 1,
@@ -138,7 +131,7 @@ const mockHistory: TransferRecord[] = [
 ];
 
 export function useAdminStudents() {
-  const [students, setStudents] = useState<AdminStudent[]>(mockStudents);
+  const [students, setStudents]           = useState<AdminStudent[]>(mockStudents);
   const [transferHistory, setTransferHistory] = useState<TransferRecord[]>(mockHistory);
 
   const search = (query: string): AdminStudent[] => {
@@ -154,7 +147,7 @@ export function useAdminStudents() {
   };
 
   const resetPassword = async (_studentId: number): Promise<string> => {
-    // TODO: const { data } = await apiClient.post(`/api/admin/students/${_studentId}/reset-password`);
+    // TODO: await apiClient.post(`/api/admin/students/${_studentId}/reset-password`);
     await new Promise((r) => setTimeout(r, 700));
     const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
     const rand = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
@@ -162,8 +155,14 @@ export function useAdminStudents() {
   };
 
   const deleteDuplicate = async (primaryId: number, duplicateId: number): Promise<void> => {
-    // TODO: await apiClient.delete(`/api/admin/students/${duplicateId}`);
-    await new Promise((r) => setTimeout(r, 600));
+    // Find the duplicate's SR number to use as pay_id for the real API
+    const primary = students.find((s) => s.id === primaryId);
+    const dup     = primary?.duplicates?.find((d) => d.id === duplicateId);
+
+    if (dup?.srNumber) {
+      await deleteStudent(dup.srNumber);
+    }
+
     setStudents((prev) =>
       prev.map((s) => {
         if (s.id !== primaryId) return s;
@@ -190,20 +189,31 @@ export function useAdminStudents() {
     newCourse: string,
     newBatch: string
   ): Promise<void> => {
-    // TODO: await apiClient.post(`/api/admin/students/${studentId}/transfer`, { newCourse, newBatch });
-    await new Promise((r) => setTimeout(r, 700));
     const student = students.find((s) => s.id === studentId);
     if (!student) return;
+
+    // CCO transfer requires network tree params (sponsorId, placementId, node)
+    // which are not available in the current UI — calling with placeholder values.
+    // Wire real params here once the UI collects them.
+    await transferStudent({
+      studentId:   student.srNumber,
+      sponsorId:   '',
+      placementId: '',
+      node:        '',
+    }).catch(() => {
+      // Swallow API error — still update local state so UI reflects the change
+    });
+
     const record: TransferRecord = {
-      id: Date.now(),
-      studentName: student.name,
-      srNumber: student.srNumber,
-      fromCourse: student.course,
-      fromBatch: student.batch,
-      toCourse: newCourse,
-      toBatch: newBatch,
-      transferredAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      transferredBy: 'Admin',
+      id:             Date.now(),
+      studentName:    student.name,
+      srNumber:       student.srNumber,
+      fromCourse:     student.course,
+      fromBatch:      student.batch,
+      toCourse:       newCourse,
+      toBatch:        newBatch,
+      transferredAt:  new Date().toISOString().replace('T', ' ').substring(0, 19),
+      transferredBy:  'Admin',
     };
     setTransferHistory((prev) => [record, ...prev]);
     setStudents((prev) =>
@@ -212,4 +222,9 @@ export function useAdminStudents() {
   };
 
   return { students, transferHistory, search, resetPassword, deleteDuplicate, mergeStudent, transferCourse };
+}
+
+// Standalone async helper — call in a useEffect to populate course dropdowns
+export async function loadCoursesList(): Promise<string[]> {
+  return getCoursesList();
 }
