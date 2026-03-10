@@ -134,7 +134,7 @@ export default function StudentSearchPage() {
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = 'var(--accent-primary)';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.12)';
+                  e.target.style.boxShadow = 'var(--accent-focus-ring)';
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = T.border;
@@ -160,20 +160,20 @@ export default function StudentSearchPage() {
                 cursor: isLoading || !query.trim() ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s',
                 fontFamily: "'Inter', sans-serif",
-                boxShadow: isLoading || !query.trim() ? 'none' : '0 4px 14px rgba(59,130,246,0.35)',
+                boxShadow: isLoading || !query.trim() ? 'none' : 'var(--accent-glow)',
                 whiteSpace: 'nowrap',
               }}
               onMouseEnter={(e) => {
                 if (!isLoading && query.trim()) {
                   const el = e.currentTarget as HTMLElement;
                   el.style.transform = 'translateY(-1px)';
-                  el.style.boxShadow = '0 6px 20px rgba(59,130,246,0.45)';
+                  el.style.boxShadow = 'var(--accent-glow-hover)';
                 }
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLElement;
                 el.style.transform = 'translateY(0)';
-                if (!isLoading && query.trim()) el.style.boxShadow = '0 4px 14px rgba(59,130,246,0.35)';
+                if (!isLoading && query.trim()) el.style.boxShadow = 'var(--accent-glow)';
               }}
             >
               {isLoading ? (
@@ -199,8 +199,8 @@ export default function StudentSearchPage() {
                 style={{
                   padding: '4px 10px', borderRadius: '99px',
                   fontSize: '11px', fontWeight: 500,
-                  border: `1px solid ${searchType === t ? 'rgba(59,130,246,0.3)' : T.border}`,
-                  background: searchType === t ? 'rgba(59,130,246,0.1)' : T.input,
+                  border: `1px solid ${searchType === t ? 'var(--accent-soft-active)' : T.border}`,
+                  background: searchType === t ? 'var(--accent-soft)' : T.input,
                   color: searchType === t ? 'var(--accent-primary)' : T.textSec,
                   cursor: 'pointer', transition: 'all 0.15s',
                   fontFamily: "'Inter', sans-serif",
@@ -246,10 +246,10 @@ export default function StudentSearchPage() {
           }}>
             <div style={{
               width: '80px', height: '80px', borderRadius: '22px',
-              background: 'linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(139,92,246,0.08) 100%)',
-              border: '1px solid rgba(59,130,246,0.15)',
+              background: 'linear-gradient(135deg, var(--accent-soft) 0%, rgba(139,92,246,0.08) 100%)',
+              border: '1px solid var(--accent-soft-border)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 8px 24px rgba(59,130,246,0.12)',
+              boxShadow: '0 8px 24px var(--accent-soft)',
             }}>
               <UserSearch size={36} color="var(--accent-primary)" style={{ opacity: 0.7 }} />
             </div>
@@ -279,16 +279,16 @@ export default function StudentSearchPage() {
                   style={{
                     padding: '7px 14px', borderRadius: '99px',
                     fontSize: '12px', fontWeight: 600,
-                    background: 'rgba(59,130,246,0.08)',
-                    border: '1px solid rgba(59,130,246,0.2)',
+                    background: 'var(--accent-soft)',
+                    border: '1px solid var(--accent-soft-border)',
                     color: 'var(--accent-primary)', cursor: 'pointer',
                     fontFamily: "'Inter', sans-serif", transition: 'all 0.15s',
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.background = 'rgba(59,130,246,0.14)';
+                    (e.currentTarget as HTMLElement).style.background = 'var(--accent-soft-hover)';
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.background = 'rgba(59,130,246,0.08)';
+                    (e.currentTarget as HTMLElement).style.background = 'var(--accent-soft)';
                   }}
                 >
                   {hint.label}

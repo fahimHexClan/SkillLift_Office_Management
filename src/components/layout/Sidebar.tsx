@@ -21,6 +21,7 @@ const S = {
   textInactive:  'var(--sidebar-text-inactive)',
   hover:         'var(--sidebar-hover-bg)',
   hoverText:     'var(--sidebar-hover-text)',
+  hoverBorder:   'var(--sidebar-hover-border)',
   activeGrad:    'var(--sidebar-active-bg)',
   activeText:    'var(--sidebar-active-text)',
   activeGlow:    'var(--sidebar-active-glow)',
@@ -33,6 +34,9 @@ const S = {
   avatarInner:   'var(--sidebar-avatar-inner)',
   avatarText:    'var(--sidebar-avatar-text)',
   shadow:        'var(--sidebar-shadow)',
+  logoutColor:   'var(--sidebar-logout-color)',
+  logoutBg:      'var(--sidebar-logout-bg)',
+  logoutBorder:  'var(--sidebar-logout-border)',
 };
 
 // ─── Nav structure ────────────────────────────────────────────────────────────
@@ -208,7 +212,7 @@ export default function Sidebar() {
                           const el = e.currentTarget as HTMLElement;
                           el.style.background = S.hover;
                           el.style.color = S.hoverText;
-                          el.style.borderColor = 'rgba(59,130,246,0.15)';
+                          el.style.borderColor = S.hoverBorder;
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -287,31 +291,33 @@ export default function Sidebar() {
             display: 'flex', alignItems: 'center', gap: '10px',
             padding: '9px 12px', borderRadius: '9px', width: '100%',
             fontSize: '13px', fontWeight: 500,
-            color: 'var(--accent-red)',
-            background: 'rgba(220,38,38,0.07)',
-            border: '1px solid rgba(220,38,38,0.15)',
+            color: S.logoutColor,
+            background: S.logoutBg,
+            border: `1px solid ${S.logoutBorder}`,
             cursor: 'pointer', transition: 'all 0.2s',
             fontFamily: "'Inter', sans-serif",
           }}
           onMouseEnter={(e) => {
             const el = e.currentTarget as HTMLElement;
-            el.style.background = 'rgba(220,38,38,0.14)';
-            el.style.borderColor = 'rgba(220,38,38,0.3)';
+            el.style.background = 'rgba(239,68,68,0.2)';
+            el.style.borderColor = 'rgba(239,68,68,0.4)';
+            el.style.color = '#ef4444';
             el.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={(e) => {
             const el = e.currentTarget as HTMLElement;
-            el.style.background = 'rgba(220,38,38,0.07)';
-            el.style.borderColor = 'rgba(220,38,38,0.15)';
+            el.style.background = S.logoutBg;
+            el.style.borderColor = S.logoutBorder;
+            el.style.color = S.logoutColor;
             el.style.transform = 'translateY(0)';
           }}
         >
           <div style={{
             width: '24px', height: '24px', borderRadius: '7px', flexShrink: 0,
-            background: 'rgba(239,68,68,0.12)',
+            background: 'rgba(239,68,68,0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <LogOut size={12} color="var(--accent-red)" />
+            <LogOut size={12} color={S.logoutColor} />
           </div>
           <span style={{ flex: 1, textAlign: 'left' }}>Sign Out</span>
         </button>
