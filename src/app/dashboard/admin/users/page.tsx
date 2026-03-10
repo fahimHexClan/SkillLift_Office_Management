@@ -395,7 +395,7 @@ export default function UsersPage() {
                     const st = getInviteStatus(inv);
                     return (
                       <tr key={inv.token} style={{ borderBottom: `1px solid ${T.border}` }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = T.hover; }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = T.cardHover; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                       >
                         <td style={{ padding: '10px 10px', fontFamily: 'monospace', color: T.text, whiteSpace: 'nowrap' }}>
@@ -478,7 +478,7 @@ export default function UsersPage() {
                     const isSelf = usr.email.toLowerCase() === session?.user?.email?.toLowerCase();
                     return (
                       <tr key={usr.email} style={{ borderBottom: `1px solid ${T.border}` }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = T.hover; }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = T.cardHover; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                       >
                         <td style={{ padding: '10px 10px', color: T.text, maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
