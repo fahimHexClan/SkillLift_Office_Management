@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-import FormData from 'form-data';
 
 const TYPE_MAP: Record<string, string> = {
   srNumber:  'userId',
@@ -19,35 +18,34 @@ export async function POST(request: NextRequest) {
 
     let user_id = String(searchValue).trim();
     if (searchType === 'srNumber' || searchType === 'sr_number') {
-      user_id = user_id.replace(/^SR/i, '');   // SR527364 → 527364
+      user_id = user_id.replace(/^SR/i, '');
     } else if (searchType === 'mobile') {
-      user_id = user_id.replace(/^0/, '');      // 0769428747 → 769428747
+      user_id = user_id.replace(/^0/, '');
     }
 
     const upstreamType = TYPE_MAP[searchType] ?? 'userId';
 
-    // Build multipart form-data exactly like Postman
+    // FIX 1: native FormData use பண்றோம் (form-data package தேவையில்லை)
     const form = new FormData();
     form.append('user_id', user_id);
     form.append('type', upstreamType);
 
+    // FIX 2: console logs-ல் NEXT_PUBLIC_ACCESS_TOKEN → ACCESS_TOKEN
     console.log('=== STUDENT SEARCH REQUEST ===');
     console.log('→ user_id:', user_id);
     console.log('→ type:   ', upstreamType);
-    console.log('Token length:', process.env.NEXT_PUBLIC_ACCESS_TOKEN?.length);
-    console.log('Token starts with:', process.env.NEXT_PUBLIC_ACCESS_TOKEN?.substring(0, 10));
-    console.log('Headers:', {
-      'access_token': process.env.NEXT_PUBLIC_ACCESS_TOKEN?.substring(0, 15) + '...',
-      ...form.getHeaders(),
-    });
+    console.log('Token length:', process.env.ACCESS_TOKEN?.length);
+    console.log('Token starts with:', process.env.ACCESS_TOKEN?.substring(0, 10));
 
+    // FIX 3: axios headers-ல் form.getHeaders() remove பண்ணோம்
+    //        (native FormData = axios automatically Content-Type set பண்ணும்)
+    //        ACCESS_TOKEN use பண்றோம் (NEXT_PUBLIC_ இல்லை)
     const response = await axios.post(
-      'https://admin.skilllift.lk/api/user/',   // trailing slash avoids 301 redirect that drops POST body
+      'https://admin.skilllift.lk/api/user/',
       form,
       {
         headers: {
-          'access_token': process.env.NEXT_PUBLIC_ACCESS_TOKEN,
-          ...form.getHeaders(),
+          'access_token': process.env.ACCESS_TOKEN,
         },
         timeout: 10000,
       }
