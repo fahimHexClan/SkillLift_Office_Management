@@ -1,16 +1,1 @@
-[
-  {
-    "token": "bdae25a25d1ea036639e4b1b19868410",
-    "role": "admin",
-    "createdBy": "fahimhex10@gmail.com",
-    "createdAt": "2026-03-09T10:50:57.944Z",
-    "expiresAt": "2026-03-16T10:50:57.944Z"
-  },
-  {
-    "token": "cbd38f45b082c38d6f4c1f2d3d007d76",
-    "role": "teacher",
-    "createdBy": "fahimhex10@gmail.com",
-    "createdAt": "2026-03-09T07:54:03.252Z",
-    "expiresAt": "2026-03-16T07:54:03.252Z"
-  }
-]
+[]
