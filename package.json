@@ -14,10 +14,10 @@
     "axios": "^1.13.6",
     "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",
-    "next": "^15.4.0-canary.43",
+    "next": "^15.2.4",
     "next-auth": "^4.24.13",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
