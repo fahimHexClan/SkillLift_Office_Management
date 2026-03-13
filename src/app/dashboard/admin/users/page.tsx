@@ -180,8 +180,16 @@ export default function UsersPage() {
     if (!confirm(`Remove access for ${email}?`)) return;
     setRemovingUser(email);
     try {
-      await fetch('/api/users/remove', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
-      setUsers((prev) => prev.filter((u) => u.email !== email));
+      const res = await fetch('/api/users/remove', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data.users)) {
+        // Use server-confirmed list so stale in-memory state can't sneak back
+        setUsers(data.users);
+      } else {
+        setUsers((prev) => prev.filter((u) => u.email !== email));
+      }
+      if (res.ok) addToast('User removed successfully', 'success');
+      else addToast(data.error ?? 'Failed to remove user', 'error');
     } finally {
       setRemovingUser(null);
     }

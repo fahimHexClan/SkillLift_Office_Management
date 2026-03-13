@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { setUserRole } from '@/lib/userRoles';
+import { setUserRole, getUserRole } from '@/lib/userRoles';
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -15,5 +15,7 @@ export async function POST(req: Request) {
   }
 
   setUserRole(email, role, session.user.email!);
-  return NextResponse.json({ success: true });
+  // Return the saved record to confirm the update took effect
+  const saved = getUserRole(email);
+  return NextResponse.json({ success: true, user: saved });
 }

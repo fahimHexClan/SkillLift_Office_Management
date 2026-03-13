@@ -8,6 +8,10 @@ export interface UserRoleRecord {
 }
 
 let memoryStore: UserRoleRecord[] = [];
+// Once true, memoryStore is authoritative and we no longer re-read from file.
+// This prevents stale file data from overwriting in-memory changes on Vercel
+// where writeFileSync silently fails (read-only filesystem).
+let initialized = false;
 
 function tryReadFromFile(): UserRoleRecord[] {
   try {
@@ -32,12 +36,16 @@ function tryWriteToFile(data: UserRoleRecord[]) {
 }
 
 function read(): UserRoleRecord[] {
-  const fromFile = tryReadFromFile();
-  if (fromFile.length > 0) { memoryStore = fromFile; return fromFile; }
+  if (!initialized) {
+    const fromFile = tryReadFromFile();
+    if (fromFile.length > 0) memoryStore = fromFile;
+    initialized = true;
+  }
   return memoryStore;
 }
 
 function write(data: UserRoleRecord[]) {
+  initialized = true;
   memoryStore = data;
   tryWriteToFile(data);
 }

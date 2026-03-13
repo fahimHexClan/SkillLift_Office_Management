@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { removeUserRole } from '@/lib/userRoles';
+import { removeUserRole, getAllUsers } from '@/lib/userRoles';
 
 export async function DELETE(req: Request) {
   const session = await getServerSession(authOptions);
@@ -15,5 +15,7 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: 'Cannot remove your own access' }, { status: 400 });
   }
   removeUserRole(email);
-  return NextResponse.json({ success: true });
+  // Return the updated list to confirm deletion took effect
+  const remaining = getAllUsers();
+  return NextResponse.json({ success: true, users: remaining });
 }
