@@ -1,4 +1,5 @@
 import path from 'path';
+import os from 'os';
 
 export interface UserRoleRecord {
   email: string;
@@ -8,37 +9,36 @@ export interface UserRoleRecord {
 }
 
 let memoryStore: UserRoleRecord[] = [];
-// Once true, memoryStore is authoritative and we no longer re-read from file.
-// This prevents stale file data from overwriting in-memory changes on Vercel
-// where writeFileSync silently fails (read-only filesystem).
+// Seed from file/tmp only once per process lifetime; after any write, memory is authoritative.
 let initialized = false;
 
-function tryReadFromFile(): UserRoleRecord[] {
+const SEED_FILE = path.join(process.cwd(), 'data', 'user-roles.json');
+const TMP_FILE  = path.join(os.tmpdir(), 'skilift-user-roles.json');
+
+function tryReadFile(filePath: string): UserRoleRecord[] | null {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require('fs');
-    const filePath = path.join(process.cwd(), 'data', 'user-roles.json');
-    if (fs.existsSync(filePath)) {
-      return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-    }
-  } catch { /* Vercel: read-only fs, use memory */ }
-  return [];
+    if (fs.existsSync(filePath)) return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch { /* ignore */ }
+  return null;
 }
 
-function tryWriteToFile(data: UserRoleRecord[]) {
+function tryWriteFile(filePath: string, data: UserRoleRecord[]) {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require('fs');
-    const dir = path.join(process.cwd(), 'data');
+    const dir = path.dirname(filePath);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'user-roles.json'), JSON.stringify(data, null, 2), 'utf-8');
-  } catch { /* Vercel: silently use memory */ }
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch { /* ignore */ }
 }
 
 function read(): UserRoleRecord[] {
   if (!initialized) {
-    const fromFile = tryReadFromFile();
-    if (fromFile.length > 0) memoryStore = fromFile;
+    // Prefer /tmp (writable; has latest mutations on this instance), then committed seed file.
+    const data = tryReadFile(TMP_FILE) ?? tryReadFile(SEED_FILE) ?? [];
+    memoryStore = data;
     initialized = true;
   }
   return memoryStore;
@@ -47,7 +47,8 @@ function read(): UserRoleRecord[] {
 function write(data: UserRoleRecord[]) {
   initialized = true;
   memoryStore = data;
-  tryWriteToFile(data);
+  tryWriteFile(TMP_FILE, data);   // always writable (Vercel /tmp or OS temp dir)
+  tryWriteFile(SEED_FILE, data);  // works locally; silently fails on Vercel (read-only)
 }
 
 export function getUserRole(email: string): UserRoleRecord | null {

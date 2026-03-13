@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import path from 'path';
+import os from 'os';
 
 export interface Invite {
   token: string;
@@ -12,34 +13,45 @@ export interface Invite {
 }
 
 let memoryStore: Invite[] = [];
+// Seed from file/tmp only once per process lifetime; after any write, memory is authoritative.
+let initialized = false;
 
-function tryReadFromFile(): Invite[] {
+const SEED_FILE = path.join(process.cwd(), 'data', 'invites.json');
+const TMP_FILE  = path.join(os.tmpdir(), 'skilift-invites.json');
+
+function tryReadFile(filePath: string): Invite[] | null {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require('fs');
-    const filePath = path.join(process.cwd(), 'data', 'invites.json');
     if (fs.existsSync(filePath)) return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  } catch { /* Vercel: read-only fs */ }
-  return [];
+  } catch { /* ignore */ }
+  return null;
 }
 
-function tryWriteToFile(data: Invite[]) {
+function tryWriteFile(filePath: string, data: Invite[]) {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require('fs');
-    const dir = path.join(process.cwd(), 'data');
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'invites.json'), JSON.stringify(data, null, 2), 'utf-8');
-  } catch { /* Vercel: use memory */ }
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch { /* ignore */ }
 }
 
 function read(): Invite[] {
-  const fromFile = tryReadFromFile();
-  if (fromFile.length > 0) { memoryStore = fromFile; return fromFile; }
+  if (!initialized) {
+    // Prefer /tmp (writable; has latest mutations on this instance), then committed seed file.
+    const data = tryReadFile(TMP_FILE) ?? tryReadFile(SEED_FILE) ?? [];
+    memoryStore = data;
+    initialized = true;
+  }
   return memoryStore;
 }
 
-function write(data: Invite[]) { memoryStore = data; tryWriteToFile(data); }
+function write(data: Invite[]) {
+  initialized = true;
+  memoryStore = data;
+  tryWriteFile(TMP_FILE, data);   // always writable (Vercel /tmp or OS temp dir)
+  tryWriteFile(SEED_FILE, data);  // works locally; silently fails on Vercel (read-only)
+}
 
 export function createInvite(role: Invite['role'], adminEmail: string): string {
   const token = crypto.randomBytes(16).toString('hex');
