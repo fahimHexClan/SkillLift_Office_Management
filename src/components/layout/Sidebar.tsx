@@ -58,17 +58,17 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
     label: 'MANAGEMENT',
     items: [
       { label: 'Student Search',     href: '/dashboard/student-search',     icon: UserSearch,  roles: ['Admin','Teacher','Staff'] },
-      { label: 'Zoom Classes',       href: '/dashboard/zoom-classes',       icon: Video,       roles: ['Admin','Teacher','Staff'] },
+      { label: 'Zoom Classes',       href: '/dashboard/zoom-classes',       icon: Video,       roles: ['Admin','Teacher'] },
       { label: 'Student Management', href: '/dashboard/admin/students',     icon: Users,       roles: ['Admin'] },
       { label: 'Coordinator Mgmt',   href: '/dashboard/admin/coordinators', icon: UserCheck,   roles: ['Admin'] },
       { label: 'User Management',    href: '/dashboard/admin/users',        icon: UserCog,     roles: ['Admin'] },
-      { label: 'Hall Bookings',      href: '/dashboard/hall-bookings',      icon: CalendarDays,roles: ['Admin','Teacher','Staff'] },
+      { label: 'Hall Bookings',      href: '/dashboard/hall-bookings',      icon: CalendarDays,roles: ['Admin','Teacher'] },
     ],
   },
   {
     label: 'SYSTEM',
     items: [
-      { label: 'Reports',  href: '/dashboard/reports',  icon: BarChart2, roles: ['Admin','Teacher','Staff'] },
+      { label: 'Reports',  href: '/dashboard/reports',  icon: BarChart2, roles: ['Admin','Teacher'] },
       { label: 'Settings', href: '/dashboard/settings', icon: Settings,  roles: ['Admin','Teacher','Staff'] },
     ],
   },
