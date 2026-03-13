@@ -5,6 +5,7 @@ import {
   GraduationCap, BookOpen, Video, AlertCircle,
   Pencil, Check, X, AlertCircle as AlertErr, Lock,
   KeyRound, BarChart2, TrendingUp, Clock, ArrowUpRight,
+  Quote,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -76,6 +77,206 @@ const ACTIVITY_BADGE: Record<string, { bg: string; color: string }> = {
   error:   { bg: 'rgba(239,68,68,0.12)',   color: '#ef4444' },
   info:    { bg: 'rgba(59,130,246,0.12)',  color: '#3b82f6' },
 };
+
+// ─── Daily Motivation ─────────────────────────────────────────────────────────
+interface DailyQuote {
+  quote: string;
+  author: string;
+  updatedBy: string;
+  updatedAt: string;
+}
+
+function DailyMotivation() {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === 'admin';
+
+  const [quoteData, setQuoteData]   = useState<DailyQuote | null>(null);
+  const [loading, setLoading]       = useState(true);
+  const [editing, setEditing]       = useState(false);
+  const [editQuote, setEditQuote]   = useState('');
+  const [editAuthor, setEditAuthor] = useState('');
+  const [saving, setSaving]         = useState(false);
+  const [saveError, setSaveError]   = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/quote')
+      .then((r) => r.json())
+      .then((d) => { setQuoteData(d); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const startEdit = () => {
+    if (!quoteData) return;
+    setEditQuote(quoteData.quote);
+    setEditAuthor(quoteData.author);
+    setSaveError(null);
+    setEditing(true);
+  };
+
+  const cancel = () => { setEditing(false); setSaveError(null); };
+
+  const save = async () => {
+    if (!editQuote.trim() || !editAuthor.trim()) {
+      setSaveError('Quote and author cannot be empty.');
+      return;
+    }
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch('/api/quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quote: editQuote, author: editAuthor }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        setSaveError(err.error ?? 'Failed to save.');
+        setSaving(false);
+        return;
+      }
+      const updated: DailyQuote = await res.json();
+      setQuoteData(updated);
+      setEditing(false);
+    } catch {
+      setSaveError('Network error. Please try again.');
+    }
+    setSaving(false);
+  };
+
+  return (
+    <div style={{
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border)',
+      borderRadius: '14px',
+      boxShadow: 'var(--shadow-sm)',
+      overflow: 'hidden',
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: '14px 20px',
+        borderBottom: '1px solid var(--border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Quote size={14} color="var(--accent-primary)" />
+          <p style={{ fontWeight: 700, fontSize: '13px', color: T.text }}>Daily Motivation</p>
+        </div>
+        {isAdmin && !editing && (
+          <button
+            onClick={startEdit}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+              padding: '4px 10px', borderRadius: '7px', fontSize: '11px', fontWeight: 600,
+              color: T.textSec, background: T.input, border: `1px solid ${T.borderHover}`,
+              cursor: 'pointer', transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = T.blue; (e.currentTarget as HTMLElement).style.color = T.text; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = T.borderHover; (e.currentTarget as HTMLElement).style.color = T.textSec; }}
+          >
+            <Pencil size={10} /> Edit Quote
+          </button>
+        )}
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: '20px 24px' }}>
+        {loading ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: T.textMuted, fontSize: '13px' }}>
+            <span style={spinner} /> Loading quote…
+          </div>
+        ) : editing ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div>
+              <label style={{ ...labelCss, marginBottom: '5px', display: 'block' }}>Quote</label>
+              <textarea
+                autoFocus
+                value={editQuote}
+                onChange={(e) => { setEditQuote(e.target.value); setSaveError(null); }}
+                rows={3}
+                style={{
+                  ...inputCss, width: '100%', resize: 'vertical', padding: '10px 12px',
+                  fontStyle: 'italic', fontSize: '14px', lineHeight: 1.6,
+                  border: `1.5px solid ${saveError ? 'var(--accent-red)' : 'var(--accent-primary)'}`,
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ ...labelCss, marginBottom: '5px', display: 'block' }}>Author</label>
+              <input
+                value={editAuthor}
+                onChange={(e) => { setEditAuthor(e.target.value); setSaveError(null); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') cancel(); }}
+                style={{ ...inputCss, width: '100%', height: '36px', padding: '0 12px', boxSizing: 'border-box' }}
+              />
+            </div>
+            {saveError && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <AlertErr size={12} color="var(--accent-red)" />
+                <p style={{ fontSize: '12px', color: 'var(--accent-red)' }}>{saveError}</p>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={save} disabled={saving}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '7px 16px', borderRadius: '8px', border: 'none',
+                  background: T.gradient, color: 'white', fontWeight: 600, fontSize: '12px',
+                  cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1,
+                  boxShadow: '0 2px 8px rgba(59,130,246,0.3)',
+                }}
+              >
+                {saving ? <span style={spinner} /> : <Check size={12} />}
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+              <button
+                onClick={cancel} disabled={saving}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '7px 14px', borderRadius: '8px',
+                  border: `1px solid ${T.border}`, background: T.input,
+                  color: T.textSec, fontWeight: 600, fontSize: '12px',
+                  cursor: 'pointer',
+                }}
+              >
+                <X size={12} /> Cancel
+              </button>
+            </div>
+          </div>
+        ) : quoteData ? (
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+            <div style={{
+              width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
+              background: 'var(--accent-soft)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Quote size={16} color="var(--accent-primary)" />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{
+                fontSize: '15px', fontStyle: 'italic', lineHeight: 1.65,
+                color: T.text, fontWeight: 500, marginBottom: '10px',
+              }}>
+                "{quoteData.quote}"
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
+                <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--accent-primary)' }}>
+                  — {quoteData.author}
+                </p>
+                <p style={{ fontSize: '11px', color: T.textMuted }}>
+                  Updated by {quoteData.updatedBy} · {new Date(quoteData.updatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p style={{ fontSize: '13px', color: T.textMuted }}>No quote available.</p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // ─── Profile Quick Edit ───────────────────────────────────────────────────────
 type FieldKey = 'name' | 'nic' | 'payId' | 'email' | 'contact' | 'srNumber';
@@ -413,7 +614,12 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Row 2 — Profile + Activity */}
+      {/* Row 2 — Daily Motivation */}
+      <div className="fade-up">
+        <DailyMotivation />
+      </div>
+
+      {/* Row 3 — Profile + Activity */}
       <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '16px' }}>
         <div className="fade-up">
           <p style={{ fontSize: '13px', fontWeight: 600, color: T.textSec, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -429,7 +635,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Row 3 — Quick actions */}
+      {/* Row 4 — Quick actions */}
       {quickActions.length > 0 && (
         <div className="fade-up">
           <p style={{ fontSize: '13px', fontWeight: 600, color: T.textSec, marginBottom: '12px' }}>Quick Actions</p>
