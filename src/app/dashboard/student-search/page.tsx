@@ -69,11 +69,11 @@ export default function StudentSearchPage() {
   const isEmpty   = !isLoading && !profile && !error;
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100%', overflow: 'hidden', minWidth: 0 }}>
 
       {/* ══ Main content ══════════════════════════════════════════════════════ */}
-      <div style={{
-        flex: 1, overflowY: 'auto',
+      <div className="page-padding" style={{
+        flex: 1, overflowY: 'auto', minWidth: 0,
         display: 'flex', flexDirection: 'column', gap: '20px',
         padding: '24px',
       }}>
@@ -86,7 +86,7 @@ export default function StudentSearchPage() {
           boxShadow: T.shadowCard,
           padding: '16px 20px',
         }}>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <div className="search-bar-row" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
 
             {/* Search type dropdown */}
             <div style={{ position: 'relative', flexShrink: 0 }}>
@@ -299,13 +299,15 @@ export default function StudentSearchPage() {
         )}
       </div>
 
-      {/* ══ Right Panel ═══════════════════════════════════════════════════════ */}
-      <RightPanel
-        activation={profile?.activation ?? null}
-        searchHistory={searchHistory}
-        onHistoryClick={handleHistoryClick}
-        onClearHistory={clearHistory}
-      />
+      {/* ══ Right Panel — hidden on mobile ════════════════════════════════════ */}
+      <div className="right-panel-desktop" style={{ display: 'contents' }}>
+        <RightPanel
+          activation={profile?.activation ?? null}
+          searchHistory={searchHistory}
+          onHistoryClick={handleHistoryClick}
+          onClearHistory={clearHistory}
+        />
+      </div>
     </div>
   );
 }

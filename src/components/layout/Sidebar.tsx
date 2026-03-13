@@ -4,7 +4,7 @@ import { useState } from 'react';
 import {
   LayoutDashboard, Video, Users, UserCheck,
   BarChart2, Settings, LogOut, ChevronRight,
-  CalendarDays, Shield, UserSearch, UserCog,
+  CalendarDays, Shield, UserSearch, UserCog, X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -81,8 +81,14 @@ const ROLE_META: Record<UserRole, { color: string; bg: string; border: string }>
   Staff:   { color: 'var(--role-staff-color)',   bg: 'var(--role-staff-bg)',   border: 'var(--role-staff-border)'   },
 };
 
+// ─── Props ────────────────────────────────────────────────────────────────────
+interface SidebarProps {
+  isOpen:  boolean;
+  onClose: () => void;
+}
+
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { role, setRole } = useUserRole();
   const { data: session } = useSession();
@@ -109,29 +115,37 @@ export default function Sidebar() {
 
   const rm = ROLE_META[displayRole];
 
-  return (
-    <aside style={{
-      width: '240px',
-      minHeight: '100vh',
-      background: S.bg,
-      display: 'flex',
-      flexDirection: 'column',
-      borderRight: `1px solid ${S.border}`,
-      boxShadow: S.shadow,
-      flexShrink: 0,
-      position: 'relative',
-      zIndex: 10,
-    }}>
+  // Close sidebar on nav click (mobile)
+  const handleNavClick = () => { onClose(); };
 
-      {/* ── Logo ── */}
+  return (
+    <aside
+      className={`sidebar-root${isOpen ? ' sidebar-open' : ''}`}
+      style={{
+        width: '240px',
+        minHeight: '100vh',
+        background: S.bg,
+        display: 'flex',
+        flexDirection: 'column',
+        borderRight: `1px solid ${S.border}`,
+        boxShadow: S.shadow,
+        flexShrink: 0,
+        position: 'relative',
+        zIndex: 10,
+      }}
+    >
+
+      {/* ── Logo + Mobile Close Button ── */}
       <div style={{
         padding: '20px 16px 16px',
         borderBottom: `1px solid ${S.border}`,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
+        gap: '8px',
       }}>
         <div style={{
+          flex: 1,
           padding: '10px 18px',
           background: S.logoBg,
           border: `1px solid ${S.logoBorder}`,
@@ -165,6 +179,38 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
+
+        {/* Close button — shown only on mobile via CSS */}
+        <button
+          onClick={onClose}
+          className="sidebar-close-btn"
+          style={{
+            display: 'none', // overridden to flex on mobile via CSS
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '36px',
+            height: '36px',
+            borderRadius: '9px',
+            background: 'rgba(255,255,255,0.1)',
+            border: `1px solid ${S.border}`,
+            cursor: 'pointer',
+            color: S.textInactive,
+            flexShrink: 0,
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget as HTMLElement;
+            el.style.background = 'rgba(239,68,68,0.15)';
+            el.style.color = '#ef4444';
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget as HTMLElement;
+            el.style.background = 'rgba(255,255,255,0.1)';
+            el.style.color = S.textInactive;
+          }}
+        >
+          <X size={16} />
+        </button>
       </div>
 
       {/* ── Role switcher (admin only) / Static role badge ── */}
@@ -222,6 +268,7 @@ export default function Sidebar() {
                     <Link
                       key={item.href}
                       href={item.href}
+                      onClick={handleNavClick}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '10px',
                         padding: '9px 12px', borderRadius: '9px',
@@ -233,6 +280,7 @@ export default function Sidebar() {
                         boxShadow: active ? S.activeGlow : 'none',
                         position: 'relative',
                         transition: 'all 0.15s ease',
+                        minHeight: '44px',
                       }}
                       onMouseEnter={(e) => {
                         if (!active) {
@@ -332,6 +380,7 @@ export default function Sidebar() {
             border: `1px solid ${S.logoutBorder}`,
             cursor: 'pointer', transition: 'all 0.2s',
             fontFamily: "'Inter', sans-serif",
+            minHeight: '44px',
           }}
           onMouseEnter={(e) => {
             const el = e.currentTarget as HTMLElement;

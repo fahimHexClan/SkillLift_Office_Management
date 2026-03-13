@@ -560,10 +560,10 @@ export default function DashboardPage() {
   ].filter((a) => a.show);
 
   return (
-    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="page-padding" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
       {/* Row 1 — Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+      <div className="stats-grid">
         {STATS.map((s, i) => {
           const Icon = s.icon;
           return (
@@ -627,7 +627,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Row 3 — Profile + Activity */}
-      <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: '16px' }}>
+      <div className="profile-activity-grid">
         <div className="fade-up">
           <p style={{ fontSize: '13px', fontWeight: 600, color: T.textSec, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Pencil size={13} color="var(--accent-primary)" /> My Profile
