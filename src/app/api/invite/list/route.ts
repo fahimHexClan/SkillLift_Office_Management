@@ -8,5 +8,5 @@ export async function GET() {
   if (!session?.user?.role || session.user.role !== 'admin') {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
-  return NextResponse.json(getAllInvites());
+  return NextResponse.json(await getAllInvites());
 }

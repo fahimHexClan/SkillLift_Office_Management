@@ -10,6 +10,6 @@ export async function DELETE(req: Request) {
   }
   const { token } = await req.json();
   if (!token) return NextResponse.json({ error: 'Token required' }, { status: 400 });
-  deleteInvite(token);
+  await deleteInvite(token);
   return NextResponse.json({ success: true });
 }

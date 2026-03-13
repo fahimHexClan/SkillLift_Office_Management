@@ -1,6 +1,5 @@
 import crypto from 'crypto';
-import path from 'path';
-import os from 'os';
+import { Redis } from '@upstash/redis';
 
 export interface Invite {
   token: string;
@@ -12,68 +11,42 @@ export interface Invite {
   expiresAt: string;
 }
 
-let memoryStore: Invite[] = [];
-// Seed from file/tmp only once per process lifetime; after any write, memory is authoritative.
-let initialized = false;
+const redis = Redis.fromEnv();
 
-const SEED_FILE = path.join(process.cwd(), 'data', 'invites.json');
-const TMP_FILE  = path.join(os.tmpdir(), 'skilift-invites.json');
-
-function tryReadFile(filePath: string): Invite[] | null {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const fs = require('fs');
-    if (fs.existsSync(filePath)) return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  } catch { /* ignore */ }
-  return null;
+async function read(): Promise<Invite[]> {
+  return (await redis.get<Invite[]>('invites')) ?? [];
 }
 
-function tryWriteFile(filePath: string, data: Invite[]) {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const fs = require('fs');
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch { /* ignore */ }
+async function write(data: Invite[]) {
+  await redis.set('invites', data);
 }
 
-function read(): Invite[] {
-  if (!initialized) {
-    // Prefer /tmp (writable; has latest mutations on this instance), then committed seed file.
-    const data = tryReadFile(TMP_FILE) ?? tryReadFile(SEED_FILE) ?? [];
-    memoryStore = data;
-    initialized = true;
-  }
-  return memoryStore;
-}
-
-function write(data: Invite[]) {
-  initialized = true;
-  memoryStore = data;
-  tryWriteFile(TMP_FILE, data);   // always writable (Vercel /tmp or OS temp dir)
-  tryWriteFile(SEED_FILE, data);  // works locally; silently fails on Vercel (read-only)
-}
-
-export function createInvite(role: Invite['role'], adminEmail: string): string {
+export async function createInvite(role: Invite['role'], adminEmail: string): Promise<string> {
   const token = crypto.randomBytes(16).toString('hex');
   const now = new Date();
-  const invites = read();
+  const invites = await read();
   invites.unshift({ token, role, createdBy: adminEmail, createdAt: now.toISOString(), expiresAt: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString() });
-  write(invites);
+  await write(invites);
   return token;
 }
 
-export function getInvite(token: string): Invite | null {
-  return read().find((i) => i.token === token) ?? null;
+export async function getInvite(token: string): Promise<Invite | null> {
+  const invites = await read();
+  return invites.find((i) => i.token === token) ?? null;
 }
 
-export function markInviteUsed(token: string, userEmail: string) {
-  const invites = read();
+export async function markInviteUsed(token: string, userEmail: string) {
+  const invites = await read();
   const idx = invites.findIndex((i) => i.token === token);
-  if (idx !== -1) { invites[idx].usedBy = userEmail; invites[idx].usedAt = new Date().toISOString(); write(invites); }
+  if (idx !== -1) { invites[idx].usedBy = userEmail; invites[idx].usedAt = new Date().toISOString(); await write(invites); }
 }
 
-export function deleteInvite(token: string) { write(read().filter((i) => i.token !== token)); }
-export function getAllInvites(): Invite[] { return read(); }
+export async function deleteInvite(token: string) {
+  const invites = await read();
+  await write(invites.filter((i) => i.token !== token));
+}
+
+export async function getAllInvites(): Promise<Invite[]> { return read(); }
 
 export function getInviteStatus(invite: Invite): 'pending' | 'used' | 'expired' {
   if (invite.usedBy) return 'used';

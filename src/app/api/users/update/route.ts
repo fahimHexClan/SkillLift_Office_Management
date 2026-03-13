@@ -12,6 +12,6 @@ export async function PATCH(req: Request) {
   if (!email || !['admin', 'teacher', 'staff'].includes(role)) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
-  setUserRole(email, role, session.user.email!);
+  await setUserRole(email, role, session.user.email!);
   return NextResponse.json({ success: true });
 }

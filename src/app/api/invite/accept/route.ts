@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   }
 
   const { token } = await req.json();
-  const invite = getInvite(token);
+  const invite = await getInvite(token);
 
   if (!invite) {
     return NextResponse.json({ error: 'Invalid invite link' }, { status: 404 });
@@ -23,8 +23,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'This invite link has expired' }, { status: 400 });
   }
 
-  setUserRole(session.user.email, invite.role, invite.createdBy);
-  markInviteUsed(token, session.user.email);
+  await setUserRole(session.user.email, invite.role, invite.createdBy);
+  await markInviteUsed(token, session.user.email);
 
   return NextResponse.json({ success: true, role: invite.role });
 }

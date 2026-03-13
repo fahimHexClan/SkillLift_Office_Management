@@ -14,8 +14,8 @@ export async function DELETE(req: Request) {
   if (email.toLowerCase() === session.user.email?.toLowerCase()) {
     return NextResponse.json({ error: 'Cannot remove your own access' }, { status: 400 });
   }
-  removeUserRole(email);
+  await removeUserRole(email);
   // Return the updated list to confirm deletion took effect
-  const remaining = getAllUsers();
+  const remaining = await getAllUsers();
   return NextResponse.json({ success: true, users: remaining });
 }

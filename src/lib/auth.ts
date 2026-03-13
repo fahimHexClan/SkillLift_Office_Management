@@ -32,9 +32,9 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token }) {
-      // Always read fresh role from file so session.update() picks up changes
+      // Always read fresh role from Redis so session.update() picks up changes
       if (token.email) {
-        const record = getUserRole(token.email);
+        const record = await getUserRole(token.email);
         token.role = record?.role ?? null;
       }
       return token;

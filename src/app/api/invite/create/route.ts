@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
   }
 
-  const token = createInvite(role as 'admin' | 'teacher' | 'staff', session.user.email!);
+  const token = await createInvite(role as 'admin' | 'teacher' | 'staff', session.user.email!);
   const base = process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
   const inviteUrl = `${base}/invite?token=${token}`;
 

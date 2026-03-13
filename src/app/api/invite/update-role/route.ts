@@ -14,8 +14,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 
-  setUserRole(email, role, session.user.email!);
+  await setUserRole(email, role, session.user.email!);
   // Return the saved record to confirm the update took effect
-  const saved = getUserRole(email);
+  const saved = await getUserRole(email);
   return NextResponse.json({ success: true, user: saved });
 }

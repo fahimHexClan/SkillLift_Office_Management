@@ -9,7 +9,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ status: 'invalid' });
   }
 
-  const invite = getInvite(token);
+  const invite = await getInvite(token);
   if (!invite) return NextResponse.json({ status: 'invalid' });
   if (invite.usedBy) return NextResponse.json({ status: 'used', role: invite.role });
   if (new Date() > new Date(invite.expiresAt)) {
