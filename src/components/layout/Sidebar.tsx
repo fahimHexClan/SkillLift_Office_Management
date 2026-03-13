@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   LayoutDashboard, Video, Users, UserCheck,
   BarChart2, Settings, LogOut, ChevronRight,
@@ -7,7 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { UserRole } from '@/types';
 import { getInitials } from '@/lib/utils';
@@ -84,6 +85,12 @@ const ROLE_META: Record<UserRole, { color: string; bg: string; border: string }>
 export default function Sidebar() {
   const pathname = usePathname();
   const { role, setRole } = useUserRole();
+  const { data: session } = useSession();
+  const [imgError, setImgError] = useState(false);
+
+  const userName  = session?.user?.name  ?? 'Support Agent';
+  const userImage = session?.user?.image ?? null;
+  const initials  = getInitials(userName);
 
   const isActive = (href: string) =>
     href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href);
@@ -266,16 +273,25 @@ export default function Sidebar() {
             flexShrink: 0,
             boxShadow: '0 2px 10px rgba(59,130,246,0.3)',
           }}>
-            <div style={{
-              width: '28px', height: '28px', borderRadius: '8px',
-              background: S.avatarInner,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: S.avatarText, fontWeight: 800, fontSize: '11px',
-            }}>SA</div>
+            {userImage && !imgError ? (
+              <img
+                src={userImage}
+                alt={userName}
+                onError={() => setImgError(true)}
+                style={{ width: '28px', height: '28px', borderRadius: '8px', objectFit: 'cover', display: 'block' }}
+              />
+            ) : (
+              <div style={{
+                width: '28px', height: '28px', borderRadius: '8px',
+                background: S.avatarInner,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: S.avatarText, fontWeight: 800, fontSize: '11px',
+              }}>{initials}</div>
+            )}
           </div>
           <div style={{ minWidth: 0, flex: 1 }}>
             <p style={{ color: S.text, fontWeight: 600, fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Support Agent
+              {userName}
             </p>
             <span style={{
               fontSize: '10px', fontWeight: 700, color: rm.color,

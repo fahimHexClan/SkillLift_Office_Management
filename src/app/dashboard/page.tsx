@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   GraduationCap, BookOpen, Video, AlertCircle,
   Pencil, Check, X, AlertCircle as AlertErr, Lock,
   KeyRound, BarChart2, TrendingUp, Clock, ArrowUpRight,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useToast } from '@/contexts/ToastContext';
 import { T, card, inputCss, labelCss, spinner } from '@/lib/theme';
+import { getInitials } from '@/lib/utils';
 
 // ─── Stat Cards ───────────────────────────────────────────────────────────────
 const STATS = [
@@ -104,12 +106,24 @@ const MOCK_PROFILE: Record<FieldKey, string> = {
 function ProfileCard() {
   const { isAdmin, role } = useUserRole();
   const { addToast } = useToast();
+  const { data: session } = useSession();
   const [values, setValues]   = useState<Record<FieldKey, string>>(MOCK_PROFILE);
   const [editKey, setEditKey] = useState<FieldKey | null>(null);
   const [editVal, setEditVal] = useState('');
   const [error, setError]     = useState<string | null>(null);
   const [saving, setSaving]   = useState(false);
   const [savedKey, setSavedKey] = useState<FieldKey | null>(null);
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    if (session?.user) {
+      setValues((prev) => ({
+        ...prev,
+        name:  session.user!.name  ?? prev.name,
+        email: session.user!.email ?? prev.email,
+      }));
+    }
+  }, [session]);
 
   const startEdit = (f: FieldDef) => {
     if (f.adminOnly && !isAdmin) return;
@@ -144,13 +158,26 @@ function ProfileCard() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '42px', height: '42px', borderRadius: '12px',
-            background: T.gradient, flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', fontWeight: 800, fontSize: '15px',
-            boxShadow: '0 4px 14px rgba(59,130,246,0.35)',
-          }}>SA</div>
+          {session?.user?.image && !imgError ? (
+            <img
+              src={session.user.image}
+              alt={values.name}
+              onError={() => setImgError(true)}
+              style={{
+                width: '42px', height: '42px', borderRadius: '12px',
+                objectFit: 'cover', display: 'block', flexShrink: 0,
+                boxShadow: '0 4px 14px rgba(59,130,246,0.35)',
+              }}
+            />
+          ) : (
+            <div style={{
+              width: '42px', height: '42px', borderRadius: '12px',
+              background: T.gradient, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'white', fontWeight: 800, fontSize: '15px',
+              boxShadow: '0 4px 14px rgba(59,130,246,0.35)',
+            }}>{getInitials(values.name)}</div>
+          )}
           <div>
             <p style={{ fontWeight: 700, fontSize: '14px', color: T.text }}>{values.name}</p>
             <span style={{ fontSize: '11px', fontWeight: 700, color: rc.color, background: rc.bg, padding: '2px 8px', borderRadius: '5px' }}>{role}</span>
