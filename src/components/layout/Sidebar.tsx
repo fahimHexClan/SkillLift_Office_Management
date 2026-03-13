@@ -92,6 +92,10 @@ export default function Sidebar() {
   const userImage = session?.user?.image ?? null;
   const initials  = getInitials(userName);
 
+  // session.user.role is lowercase ('admin'/'teacher'/'staff')
+  const sessionRole = session?.user?.role ?? null;
+  const isSessionAdmin = sessionRole === 'admin';
+
   const isActive = (href: string) =>
     href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href);
 
@@ -155,7 +159,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* ── Role switcher ── */}
+      {/* ── Role switcher (admin only) / Static role badge ── */}
       <div style={{ padding: '12px 14px', borderBottom: `1px solid ${S.border}` }}>
         <div style={{
           display: 'flex', alignItems: 'center', gap: '8px',
@@ -163,19 +167,27 @@ export default function Sidebar() {
           background: rm.bg, border: `1px solid ${rm.border}`,
         }}>
           <Shield size={12} color={rm.color} />
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value as UserRole)}
-            style={{
-              background: 'none', border: 'none', outline: 'none', flex: 1,
-              fontSize: '12px', fontWeight: 700, color: rm.color,
-              cursor: 'pointer', fontFamily: "'Inter', sans-serif",
-            }}
-          >
-            <option value="Admin">Admin</option>
-            <option value="Teacher">Teacher</option>
-            <option value="Staff">Staff</option>
-          </select>
+          {isSessionAdmin ? (
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value as UserRole)}
+              style={{
+                background: 'none', border: 'none', outline: 'none', flex: 1,
+                fontSize: '12px', fontWeight: 700, color: rm.color,
+                cursor: 'pointer', fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              <option value="Admin">Admin</option>
+              <option value="Teacher">Teacher</option>
+              <option value="Staff">Staff</option>
+            </select>
+          ) : (
+            <span style={{
+              flex: 1, fontSize: '12px', fontWeight: 700, color: rm.color,
+            }}>
+              {role}
+            </span>
+          )}
         </div>
       </div>
 

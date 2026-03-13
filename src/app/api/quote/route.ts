@@ -1,18 +1,24 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import fs from 'fs';
-import path from 'path';
 import { authOptions } from '@/lib/auth';
 
-const QUOTE_FILE = path.join(process.cwd(), 'data', 'daily-quote.json');
+interface DailyQuote {
+  quote: string;
+  author: string;
+  updatedBy: string;
+  updatedAt: string;
+}
+
+// In-memory store — persists for the lifetime of the server process
+let currentQuote: DailyQuote = {
+  quote: 'The secret of getting ahead is getting started.',
+  author: 'Mark Twain',
+  updatedBy: 'system',
+  updatedAt: '2026-03-13T00:00:00.000Z',
+};
 
 export async function GET() {
-  try {
-    const data = JSON.parse(fs.readFileSync(QUOTE_FILE, 'utf-8'));
-    return NextResponse.json(data);
-  } catch {
-    return NextResponse.json({ error: 'Failed to read quote' }, { status: 500 });
-  }
+  return NextResponse.json(currentQuote);
 }
 
 export async function POST(req: Request) {
@@ -29,13 +35,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'quote and author are required' }, { status: 400 });
   }
 
-  const updated = {
+  currentQuote = {
     quote: quote.trim(),
     author: author.trim(),
     updatedBy: session.user.email ?? session.user.name ?? 'admin',
     updatedAt: new Date().toISOString(),
   };
 
-  fs.writeFileSync(QUOTE_FILE, JSON.stringify(updated, null, 2));
-  return NextResponse.json(updated);
+  return NextResponse.json(currentQuote);
 }
