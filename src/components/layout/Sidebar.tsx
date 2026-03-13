@@ -96,10 +96,18 @@ export default function Sidebar() {
   const sessionRole = session?.user?.role ?? null;
   const isSessionAdmin = sessionRole === 'admin';
 
+  // Real role derived from session (capitalized to match UserRole type)
+  const realRole: UserRole = sessionRole
+    ? (sessionRole.charAt(0).toUpperCase() + sessionRole.slice(1)) as UserRole
+    : 'Staff';
+
+  // For admin: allow role switcher to affect badge display; non-admin: always use session role
+  const displayRole: UserRole = isSessionAdmin ? role : realRole;
+
   const isActive = (href: string) =>
     href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href);
 
-  const rm = ROLE_META[role];
+  const rm = ROLE_META[displayRole];
 
   return (
     <aside style={{
@@ -185,7 +193,7 @@ export default function Sidebar() {
             <span style={{
               flex: 1, fontSize: '12px', fontWeight: 700, color: rm.color,
             }}>
-              {role}
+              {displayRole}
             </span>
           )}
         </div>
@@ -194,7 +202,7 @@ export default function Sidebar() {
       {/* ── Navigation ── */}
       <nav style={{ flex: 1, padding: '14px 10px', overflowY: 'auto' }}>
         {NAV_SECTIONS.map((section, si) => {
-          const visibleItems = section.items.filter((item) => item.roles.includes(role));
+          const visibleItems = section.items.filter((item) => item.roles.includes(realRole));
           if (!visibleItems.length) return null;
           return (
             <div key={section.label} style={{ marginBottom: '6px' }}>
@@ -308,7 +316,7 @@ export default function Sidebar() {
             <span style={{
               fontSize: '10px', fontWeight: 700, color: rm.color,
               background: rm.bg, padding: '1px 6px', borderRadius: '4px',
-            }}>{role}</span>
+            }}>{displayRole}</span>
           </div>
         </div>
 

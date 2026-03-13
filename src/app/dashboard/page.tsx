@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { useUserRole } from '@/hooks/useUserRole';
+import type { UserRole } from '@/types';
 import { useToast } from '@/contexts/ToastContext';
 import { T, card, inputCss, labelCss, spinner } from '@/lib/theme';
 import { getInitials } from '@/lib/utils';
@@ -305,9 +305,13 @@ const MOCK_PROFILE: Record<FieldKey, string> = {
 };
 
 function ProfileCard() {
-  const { isAdmin, role } = useUserRole();
   const { addToast } = useToast();
   const { data: session } = useSession();
+  const sessionRoleRaw = session?.user?.role ?? null;
+  const role: UserRole = sessionRoleRaw
+    ? (sessionRoleRaw.charAt(0).toUpperCase() + sessionRoleRaw.slice(1)) as UserRole
+    : 'Staff';
+  const isAdmin = sessionRoleRaw === 'admin';
   const [values, setValues]   = useState<Record<FieldKey, string>>(MOCK_PROFILE);
   const [editKey, setEditKey] = useState<FieldKey | null>(null);
   const [editVal, setEditVal] = useState('');
@@ -544,7 +548,10 @@ function ActivityFeed() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const { isAdmin, canManage } = useUserRole();
+  const { data: session } = useSession();
+  const sessionRoleRaw = session?.user?.role ?? null;
+  const isAdmin   = sessionRoleRaw === 'admin';
+  const canManage = sessionRoleRaw === 'admin' || sessionRoleRaw === 'teacher';
 
   const quickActions = [
     { label: 'Reset Student Password', href: '/dashboard/admin/students', icon: KeyRound,  show: isAdmin,   gradient: 'linear-gradient(135deg, #ef4444, #f59e0b)' },
