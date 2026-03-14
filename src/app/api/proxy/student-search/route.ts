@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
 const TYPE_MAP: Record<string, string> = {
-  srNumber: 'userId',
-  payId:    'payId',
-  mobile:   'mobile',
-  email:    'email',
-  nic:      'nic',
+  srNumber:  'userId',
+  sr_number: 'userId',
+  payId:     'payid',
+  pay_id:    'payid',
+  mobile:    'mobile',
+  email:     'email',
+  nic:       'nic',
 };
 
 export async function POST(request: NextRequest) {
