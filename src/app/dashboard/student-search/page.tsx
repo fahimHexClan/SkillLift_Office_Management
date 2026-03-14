@@ -69,10 +69,10 @@ export default function StudentSearchPage() {
   const isEmpty   = !isLoading && !profile && !error;
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden', minWidth: 0 }}>
+    <div className="search-page-layout">
 
       {/* ══ Main content ══════════════════════════════════════════════════════ */}
-      <div className="page-padding" style={{
+      <div className="page-padding search-main-content" style={{
         flex: 1, overflowY: 'auto', minWidth: 0,
         display: 'flex', flexDirection: 'column', gap: '20px',
         padding: '24px',
@@ -299,15 +299,13 @@ export default function StudentSearchPage() {
         )}
       </div>
 
-      {/* ══ Right Panel — hidden on mobile ════════════════════════════════════ */}
-      <div className="right-panel-desktop" style={{ display: 'contents' }}>
-        <RightPanel
-          activation={profile?.activation ?? null}
-          searchHistory={searchHistory}
-          onHistoryClick={handleHistoryClick}
-          onClearHistory={clearHistory}
-        />
-      </div>
+      {/* ══ Right Panel — sidebar on desktop, stacked below on mobile ══════ */}
+      <RightPanel
+        activation={profile?.activation ?? null}
+        searchHistory={searchHistory}
+        onHistoryClick={handleHistoryClick}
+        onClearHistory={clearHistory}
+      />
     </div>
   );
 }

@@ -28,12 +28,7 @@ export default function StudentTabs({ profile }: Props) {
     }}>
 
       {/* Tab header bar */}
-      <div style={{
-        display: 'flex',
-        borderBottom: `1px solid ${T.border}`,
-        background: T.input,
-        padding: '0 8px',
-      }}>
+      <div className="tabs-scroll-header" style={{ background: T.input }}>
         {TABS.map((tab, idx) => {
           const isActive = active === idx;
           const count = tab.count ? tab.count(profile) : null;

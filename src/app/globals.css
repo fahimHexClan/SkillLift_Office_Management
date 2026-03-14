@@ -268,6 +268,75 @@ input, select, textarea { color-scheme: light dark; }
   gap: 16px;
 }
 
+/* ── Student Search page layout ── */
+/* Outer flex row: main content + right panel */
+.search-page-layout {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Profile header: 2-col student | counselor */
+.profile-header-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.profile-student-side {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-right: 24px;
+}
+.profile-counselor-side {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding-left: 24px;
+  border-left: 1px solid var(--border);
+}
+
+/* SR Number / Pay ID highlight row */
+.sr-payid-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sr-payid-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* Basic info 2-col field grid */
+.basic-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 32px;
+}
+
+/* Tab header: scrollable on mobile */
+.tabs-scroll-header {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tabs-scroll-header::-webkit-scrollbar { display: none; }
+
+/* Right panel aside */
+.right-panel-aside {
+  width: 260px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+}
+
 /* Hamburger button — hidden by default (desktop) */
 .sidebar-hamburger {
   display: none;
@@ -346,6 +415,61 @@ input, select, textarea { color-scheme: light dark; }
   /* Page padding smaller on mobile */
   .page-padding { padding: 16px !important; }
   .page-padding-sm { padding: 12px !important; }
+
+  /* ── Student Search page ── */
+
+  /* Stack main content + right panel vertically */
+  .search-page-layout {
+    flex-direction: column !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .search-main-content {
+    overflow-y: visible !important;
+  }
+
+  /* Search bar: stack dropdown / input / button */
+  .search-bar-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .search-bar-row > * { width: 100% !important; min-width: unset !important; }
+  .search-bar-row select { width: 100% !important; min-width: unset !important; }
+
+  /* Profile header: single column */
+  .profile-header-grid { grid-template-columns: 1fr !important; }
+  .profile-student-side {
+    padding-right: 0 !important;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .profile-counselor-side {
+    padding-left: 0 !important;
+    padding-top: 16px;
+    border-left: none !important;
+  }
+
+  /* SR / Pay ID: stack vertically */
+  .sr-payid-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+  .sr-payid-divider { display: none !important; }
+
+  /* Basic info: single column */
+  .basic-info-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Right panel: full width below main content */
+  .right-panel-aside {
+    width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
 }
 
 /* ── Small mobile (≤479px) ── */

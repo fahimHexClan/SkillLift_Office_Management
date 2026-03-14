@@ -21,11 +21,8 @@ interface Props {
 
 export default function RightPanel({ activation, searchHistory, onHistoryClick, onClearHistory }: Props) {
   return (
-    <aside style={{
-      width: '260px',
-      flexShrink: 0,
+    <aside className="right-panel-aside" style={{
       background: T.card,
-      borderLeft: `1px solid ${T.border}`,
       display: 'flex',
       flexDirection: 'column',
       gap: '0',

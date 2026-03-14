@@ -22,8 +22,7 @@ export default function BasicInfoTab({ student, payId }: Props) {
     <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
       {/* SR Number + Pay ID highlight row */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap',
+      <div className="sr-payid-row" style={{
         padding: '14px 18px',
         background: 'linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(139,92,246,0.06) 100%)',
         border: '1px solid rgba(59,130,246,0.15)',
@@ -36,7 +35,7 @@ export default function BasicInfoTab({ student, payId }: Props) {
           </p>
         </div>
 
-        <div style={{ width: '1px', height: '36px', background: T.border, margin: '0 4px' }} />
+        <div className="sr-payid-divider" />
 
         <div>
           <p style={{ ...labelCss, marginBottom: '3px' }}>Pay ID</p>
@@ -55,7 +54,7 @@ export default function BasicInfoTab({ student, payId }: Props) {
       </div>
 
       {/* Fields grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px 32px' }}>
+      <div className="basic-info-grid">
         <Field label="Full Name"            value={student.name} />
         <Field label="Course / Marketplace" value={student.marketplace} />
         <Field label="Language / Medium"    value={student.medium} />

@@ -41,19 +41,16 @@ export default function ProfileHeader({ profile }: Props) {
   const ps = PAYMENT_STYLES[student.paymentStatus] ?? PAYMENT_STYLES.pending;
 
   return (
-    <div style={{
+    <div className="profile-header-grid" style={{
       background: T.card,
       border: `1px solid ${T.border}`,
       borderRadius: '16px',
       boxShadow: T.shadowCard,
       padding: '20px 24px',
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '0',
     }}>
 
       {/* ── Student side ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', paddingRight: '24px' }}>
+      <div className="profile-student-side">
         <Avatar name={student.name} gradient="linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)" />
 
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -100,11 +97,7 @@ export default function ProfileHeader({ profile }: Props) {
       </div>
 
       {/* ── Counselor side ── */}
-      <div style={{
-        display: 'flex', alignItems: 'flex-start', gap: '14px',
-        paddingLeft: '24px',
-        borderLeft: `1px solid ${T.border}`,
-      }}>
+      <div className="profile-counselor-side">
         <Avatar name={counselor.name} gradient="linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)" />
 
         <div style={{ flex: 1, minWidth: 0 }}>
