@@ -69,11 +69,18 @@ export async function POST(request: NextRequest) {
     console.error('Response:', err?.response?.data);
     console.error('Message:', err?.message);
 
+    // Unwrap upstream error to a plain string so api.ts receives it cleanly.
+    // Upstream may return { "error": "No user details were found." } or a plain string.
+    const upstreamData = err?.response?.data as Record<string, unknown> | string | undefined;
+    const errorMsg: string =
+      typeof upstreamData === 'string'
+        ? upstreamData
+        : typeof upstreamData?.error === 'string'
+          ? upstreamData.error
+          : err?.message ?? 'Unknown error';
+
     return NextResponse.json(
-      {
-        error: err?.response?.data || err?.message,
-        status: err?.response?.status,
-      },
+      { error: errorMsg, status: err?.response?.status },
       { status: err?.response?.status || 500 }
     );
   }
