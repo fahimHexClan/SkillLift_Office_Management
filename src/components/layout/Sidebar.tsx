@@ -6,8 +6,7 @@ import {
   BarChart2, Settings, LogOut, ChevronRight,
   CalendarDays, Shield, UserSearch, UserCog, X,
 } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { UserRole } from '@/types';
@@ -90,6 +89,7 @@ interface SidebarProps {
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const router   = useRouter();
   const { role, setRole } = useUserRole();
   const { data: session } = useSession();
   const [imgError, setImgError] = useState(false);
@@ -115,8 +115,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   const rm = ROLE_META[displayRole];
 
-  // Close sidebar on nav click (mobile)
-  const handleNavClick = () => { onClose(); };
+  // Navigate and close sidebar (critical on mobile)
+  const handleNavClick = (href: string) => {
+    router.push(href);
+    onClose();
+  };
 
   return (
     <aside
@@ -265,10 +268,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   const Icon   = item.icon;
                   const active = isActive(item.href);
                   return (
-                    <Link
+                    <button
                       key={item.href}
-                      href={item.href}
-                      onClick={handleNavClick}
+                      onClick={() => handleNavClick(item.href)}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '10px',
                         padding: '9px 12px', borderRadius: '9px',
@@ -276,11 +278,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         color: active ? S.activeText : S.textInactive,
                         background: active ? S.activeGrad : 'transparent',
                         border: '1px solid transparent',
-                        textDecoration: 'none',
                         boxShadow: active ? S.activeGlow : 'none',
                         position: 'relative',
                         transition: 'all 0.15s ease',
                         minHeight: '44px',
+                        width: '100%',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: "'Inter', sans-serif",
                       }}
                       onMouseEnter={(e) => {
                         if (!active) {
@@ -304,7 +309,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       {active && (
                         <ChevronRight size={12} style={{ opacity: 0.6, flexShrink: 0 }} />
                       )}
-                    </Link>
+                    </button>
                   );
                 })}
               </div>
