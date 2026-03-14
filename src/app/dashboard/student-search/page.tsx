@@ -23,9 +23,10 @@ const PLACEHOLDER: Record<SearchType, string> = {
 export default function StudentSearchPage() {
   const [query,      setQuery]      = useState('');
   const [searchType, setSearchType] = useState<SearchType>('SR Number');
+  const [lastQuery,  setLastQuery]  = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { profile, isLoading, error, searchHistory, search, clearHistory } = useStudentSearch();
+  const { profile, isLoading, error, searchHistory, search, clearHistory, clearSearch } = useStudentSearch();
 
   const handleInputChange = (raw: string) => {
     if (searchType === 'SR Number') {
@@ -44,6 +45,7 @@ export default function StudentSearchPage() {
   const handleSearch = () => {
     const q = query.trim();
     if (!q || isLoading) return;
+    setLastQuery(q);
     search(q, searchType);
   };
 
@@ -57,16 +59,19 @@ export default function StudentSearchPage() {
       const found = SEARCH_TYPES.find((t) => t.replace(/\s/g, '') === typeKey);
       if (found) setSearchType(found);
       setQuery(value);
+      setLastQuery(value);
       search(value, found ?? searchType);
     } else {
       setQuery(label);
+      setLastQuery(label);
       search(label, searchType);
     }
     inputRef.current?.focus();
   };
 
-  const hasResult = !isLoading && !!profile;
-  const isEmpty   = !isLoading && !profile && !error;
+  const hasResult  = !isLoading && !!profile;
+  const isEmpty    = !isLoading && !profile && !error;
+  const isNotFound = !isLoading && !!error && error.toLowerCase().includes('no user details were found');
 
   return (
     <div className="search-page-layout">
@@ -212,8 +217,79 @@ export default function StudentSearchPage() {
           </div>
         </div>
 
-        {/* ── Error state ── */}
-        {error && !isLoading && (
+        {/* ── Not found empty state ── */}
+        {isNotFound && (
+          <div className="fade-up" style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', padding: '60px 20px', textAlign: 'center',
+          }}>
+            {/* Animated search icon with pulse ring */}
+            <div style={{ position: 'relative', marginBottom: '24px' }}>
+              <div style={{
+                width: '80px', height: '80px', borderRadius: '50%',
+                background: 'linear-gradient(135deg, #0d9488, #0891b2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '32px', animation: 'pulse 2s infinite',
+              }}>🔍</div>
+              <div style={{
+                position: 'absolute', top: '-6px', right: '-6px',
+                width: '26px', height: '26px', borderRadius: '50%',
+                background: '#ef4444',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '13px', color: 'white', fontWeight: 800,
+                boxShadow: '0 2px 8px rgba(239,68,68,0.4)',
+              }}>!</div>
+            </div>
+
+            <h3 style={{ fontSize: '21px', fontWeight: 700, marginBottom: '10px', color: T.text }}>
+              Student Not Found
+            </h3>
+
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
+              borderRadius: '99px', padding: '6px 16px', marginBottom: '16px',
+            }}>
+              <span style={{ color: '#ef4444', fontSize: '12px', fontWeight: 700 }}>✗</span>
+              <span style={{ color: T.text, fontSize: '13px', fontWeight: 600, fontFamily: 'monospace' }}>
+                "{lastQuery}" — No records found
+              </span>
+            </div>
+
+            <p style={{ color: T.textSec, fontSize: '13px', marginBottom: '24px', maxWidth: '380px', lineHeight: 1.7 }}>
+              We couldn&apos;t find any student matching your search. Double-check the details and try again.
+            </p>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginBottom: '28px' }}>
+              {['Check spelling', 'Try Mobile Number', 'Try NIC', 'Use Pay ID'].map((tip) => (
+                <span key={tip} style={{
+                  background: T.card, border: `1px solid ${T.border}`,
+                  borderRadius: '99px', padding: '4px 12px',
+                  fontSize: '12px', color: T.textMuted,
+                }}>💡 {tip}</span>
+              ))}
+            </div>
+
+            <button
+              onClick={() => { clearSearch(); setQuery(''); }}
+              style={{
+                background: 'linear-gradient(135deg, #0d9488, #0891b2)',
+                color: 'white', border: 'none', borderRadius: '10px',
+                padding: '10px 24px', fontSize: '13px', fontWeight: 700,
+                cursor: 'pointer', fontFamily: "'Inter', sans-serif",
+                boxShadow: '0 4px 14px rgba(13,148,136,0.35)',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+            >
+              🔄 Clear &amp; Try Again
+            </button>
+          </div>
+        )}
+
+        {/* ── Generic error state (non-404 errors) ── */}
+        {error && !isNotFound && !isLoading && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: '12px',
             padding: '14px 18px',

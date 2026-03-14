@@ -64,5 +64,10 @@ export function useStudentSearch() {
     saveHistory([]);
   };
 
-  return { profile, isLoading, error, searchHistory, search, clearHistory };
+  const clearSearch = () => {
+    setError(null);
+    setProfile(null);
+  };
+
+  return { profile, isLoading, error, searchHistory, search, clearHistory, clearSearch };
 }
