@@ -2,13 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
 const TYPE_MAP: Record<string, string> = {
-  srNumber:  'userId',
-  sr_number: 'userId',
-  payId:     'payId',
-  pay_id:    'payId',
-  email:     'email',
-  mobile:    'mobile',
-  nic:       'nic',
+  srNumber: 'userId',
+  payId:    'payId',
+  mobile:   'mobile',
+  email:    'email',
+  nic:      'nic',
 };
 
 export async function POST(request: NextRequest) {
@@ -16,21 +14,27 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { searchType, searchValue } = body as { searchType: string; searchValue: string };
 
+    console.log('searchType received:', searchType);
+    console.log('searchValue received:', searchValue);
+    console.log('TYPE_MAP result:', TYPE_MAP[searchType]);
+
     let user_id = String(searchValue).trim();
-    if (searchType === 'srNumber' || searchType === 'sr_number') {
+    if (searchType === 'srNumber') {
       user_id = user_id.replace(/^SR/i, '');
     } else if (searchType === 'mobile') {
       user_id = user_id.replace(/^0/, '');
     }
+    // payId and all others: send value as-is
 
     const upstreamType = TYPE_MAP[searchType] ?? 'userId';
 
-    // FIX 1: native FormData use பண்றோம் (form-data package தேவையில்லை)
+    console.log('Final user_id:', user_id);
+    console.log('Final type sent to API:', upstreamType);
+
     const form = new FormData();
     form.append('user_id', user_id);
     form.append('type', upstreamType);
 
-    // FIX 2: console logs-ல் NEXT_PUBLIC_ACCESS_TOKEN → ACCESS_TOKEN
     console.log('=== STUDENT SEARCH REQUEST ===');
     console.log('→ user_id:', user_id);
     console.log('→ type:   ', upstreamType);
