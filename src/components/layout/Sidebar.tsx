@@ -134,7 +134,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         boxShadow: S.shadow,
         flexShrink: 0,
         position: 'relative',
-        zIndex: 10,
+        zIndex: 50,
       }}
     >
 
