@@ -16,6 +16,7 @@ export interface Student {
   createdAt: string;
   photo?: string;
   paymentStatus: 'half' | 'full' | 'pending';
+  placementId?: string;
 }
 
 export interface Counselor {

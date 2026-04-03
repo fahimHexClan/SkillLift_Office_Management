@@ -127,6 +127,18 @@ export default function ProfileHeader({ profile }: Props) {
               {counselor.agentNumber}
             </span>
           </div>
+
+          {/* CN ID */}
+          {student.placementId && (
+            <div style={{ marginTop: '6px' }}>
+              <span style={{ fontSize: '10px', color: T.textMuted, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                CN ID
+              </span>
+              <p style={{ fontSize: '12px', color: T.textSec, fontFamily: 'monospace', fontWeight: 600, marginTop: '1px' }}>
+                {student.placementId}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

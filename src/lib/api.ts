@@ -220,6 +220,7 @@ function mapStudentProfile(raw: unknown, searchValue: string): StudentProfile {
       classType:     get('class_type', 'classType'),
       createdAt:     get('join_date', 'joined_date', 'joined_at', 'created_at', 'create_date', 'created_date', 'registration_date'),
       paymentStatus,
+      placementId:   get('placement_id', 'placementId') || undefined,
     },
     counselor: {
       id:          Number(sponsor.id ?? 0),
